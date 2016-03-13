@@ -28,15 +28,23 @@
         android:layout_height="match_parent"
         android:layout_gravity="center_vertical"
         android:layout_weight="1"
-        android:layout_marginRight="@dimen/activity_divider_padding"
-        android:weightSum="1">
+        android:layout_marginRight="@dimen/activity_divider_padding">
 
         <de.slava.schoolaccounting.room.RoomView
-            android:id="@+id/room111"
-            custom:roomName="111"
+            android:id="@+id/room011"
+            custom:roomName="011"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.22" />
+            android:layout_height="0px"
+            android:layout_weight="1"
+            android:layout_marginBottom="@dimen/activity_divider_padding"
+            />
+        <de.slava.schoolaccounting.room.RoomView
+            android:id="@+id/roomUnknown"
+            custom:roomName="\?\?\?"
+            android:layout_width="wrap_content"
+            android:layout_height="0px"
+            android:layout_weight="1" />
+
 
     </LinearLayout>
 

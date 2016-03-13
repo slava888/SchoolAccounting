@@ -11,15 +11,21 @@ import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import butterknife.Bind;
+import butterknife.ButterKnife;
 import de.slava.schoolaccounting.R;
+import de.slava.schoolaccounting.model.Room;
+import de.slava.schoolaccounting.model.SchoolModel;
 
 
 public class RoomView extends RelativeLayout {
-    private String roomName = "";
     private int colorBorder = Color.RED;
     private int colorBackground = 0xFF99FF99;
 
-    private TextView header;
+    private SchoolModel schoolModel;
+    private Room roomModel;
+
+    @Bind(R.id.header) TextView header;
 
     public RoomView(Context context) {
         super(context, null, R.attr.roomStyle);
@@ -38,20 +44,28 @@ public class RoomView extends RelativeLayout {
 
     private void init(AttributeSet attrs, int defStyle) {
         // init this
-        inflate(getContext(), R.layout.room_view, this);
-        header = (TextView)findViewById(R.id.header);
+        View view = inflate(getContext(), R.layout.room_view, this);
+        ButterKnife.bind(this, view);
 
         // Load attributes
         final TypedArray a = getContext().obtainStyledAttributes(attrs, R.styleable.RoomView, defStyle, 0);
-        roomName = a.getString(R.styleable.RoomView_roomName);
-        if (roomName == null)
-            roomName = "";
         colorBorder = a.getColor(R.styleable.RoomView_colorBorder, colorBorder);
         colorBackground = a.getColor(R.styleable.RoomView_colorBackground, colorBackground);
-
-        header.setText(roomName);
-
         a.recycle();
+
+        syncModelWithUI();
+    }
+
+    public void dataInit(SchoolModel model, Room room) {
+        this.schoolModel = model;
+        this.roomModel = room;
+        syncModelWithUI();
+    }
+
+    private void syncModelWithUI() {
+        if (header == null || this.roomModel == null)
+            return;
+        header.setText(roomModel.getName());
     }
 
 }
