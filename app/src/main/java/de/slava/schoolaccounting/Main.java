@@ -73,7 +73,7 @@ public class Main extends AppCompatActivity {
         model = storage.loadModel();
         Map<String, RoomView> room2View = new HashMap<>();
         room2View.put("Home", roomHome);
-        room2View.put("Unknown", roomUnknown);
+        room2View.put("?", roomUnknown);
         room2View.put("011", room011);
         room2View.put("017", room017);
         room2View.put("018", room018);

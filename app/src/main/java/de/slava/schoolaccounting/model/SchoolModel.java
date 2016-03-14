@@ -8,15 +8,20 @@ import java.util.TreeSet;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 
 /**
  * @author by V.Sysoltsev
  */
-@ToString @EqualsAndHashCode
-public class SchoolModel {
+@ToString
+public class SchoolModel extends BasicEntity{
     @Getter
     private final Set<Room> rooms = new HashSet<>();
     @Getter
     private final Set<Scholar> scholars = new HashSet<>();
+
+    @Getter @Setter
+    private Room defaultRoom;
+
 }
