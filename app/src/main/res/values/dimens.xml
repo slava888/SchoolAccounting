@@ -6,4 +6,5 @@
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="roomFontSize">20sp</dimen>
     <dimen name="room_view_padding">1sp</dimen>
+    <dimen name="text_margin">16dp</dimen>
 </resources>

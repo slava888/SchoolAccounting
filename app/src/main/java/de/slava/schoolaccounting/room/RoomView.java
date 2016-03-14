@@ -5,6 +5,8 @@ import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.support.v4.app.Fragment;
+import android.support.v7.app.AppCompatActivity;
 import android.text.TextPaint;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -23,6 +25,7 @@ import java.util.Set;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import de.slava.schoolaccounting.Main;
 import de.slava.schoolaccounting.R;
 import de.slava.schoolaccounting.model.Room;
@@ -70,6 +73,18 @@ public class RoomView extends RelativeLayout {
         a.recycle();
 
         syncModelWithUI();
+
+        setOnClickListener(this::onClick);
+    }
+
+    private void onClick(View view) {
+        Log.d(Main.getTag(), String.format("Clicked on %s", view));
+        AppCompatActivity activity = (AppCompatActivity)getContext();
+        RoomFragment fragment = new RoomFragment();
+        activity.getSupportFragmentManager().beginTransaction()
+                .replace(R.id.layoutMain, fragment, roomModel.getName())
+                .addToBackStack(null)
+                .commit();
     }
 
     public void dataInit(SchoolModel model, Room room) {
