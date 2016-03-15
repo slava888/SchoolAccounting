@@ -15,10 +15,11 @@ public class Storage {
             ret.getRooms().add(room);
         }
         int schId = 1;
-        ret.getScholars().add(new Scholar(schId++, "Slava", ret.getDefaultRoom()));
-        ret.getScholars().add(new Scholar(schId++, "Marina", ret.getDefaultRoom()));
-        ret.getScholars().add(new Scholar(schId++, "Stefan", ret.getDefaultRoom()));
-        ret.getScholars().add(new Scholar(schId++, "Sebastian", ret.getDefaultRoom()));
+        ret.getScholars().add(new Scholar(schId++, "Slava", ret.getDefaultRoom(), 1));
+        ret.getScholars().add(new Scholar(schId++, "Marina", ret.getDefaultRoom(), 4));
+        ret.getScholars().add(new Scholar(schId++, "Stefan", ret.getDefaultRoom(), 2));
+        ret.getScholars().add(new Scholar(schId++, "Sebastian", ret.getDefaultRoom(), 2));
+        ret.getScholars().add(new Scholar(schId++, "Maja", ret.getDefaultRoom(), 3));
         return ret;
     }
 

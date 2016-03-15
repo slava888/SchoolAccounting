@@ -17,6 +17,7 @@ public class Scholar extends BasicEntity {
     private Integer id;
     private String nameFull;
     private Room room;
+    private Integer imageId;
 
     public Scholar() {
         this(null, null);
@@ -26,10 +27,13 @@ public class Scholar extends BasicEntity {
         this(id, name, null);
     }
 
-    public Scholar(Integer id, String name, Room room) {
+    public Scholar(Integer id, String name, Room room) { this(id, name, room, null); }
+
+    public Scholar(Integer id, String name, Room room, Integer imageId) {
         setId(id);
         setNameFull(name);
         setRoom(room);
+        setImageId(imageId);
     }
 
     /**
@@ -66,5 +70,15 @@ public class Scholar extends BasicEntity {
 
     public Room getRoom() {
         return room;
+    }
+
+    public Integer getImageId() {
+        return imageId;
+    }
+
+    public void setImageId(Integer imageId) {
+        Integer oldValue = imageId;
+        this.imageId = imageId;
+        super.firePropertyChange("imageId", oldValue, imageId);
     }
 }

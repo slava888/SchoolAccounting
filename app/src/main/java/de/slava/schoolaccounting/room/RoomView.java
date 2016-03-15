@@ -81,6 +81,7 @@ public class RoomView extends RelativeLayout {
         Log.d(Main.getTag(), String.format("Clicked on %s", view));
         AppCompatActivity activity = (AppCompatActivity)getContext();
         RoomFragment fragment = new RoomFragment();
+        fragment.dataInit(schoolModel, roomModel);
         activity.getSupportFragmentManager().beginTransaction()
                 .replace(R.id.layoutMain, fragment, roomModel.getName())
                 .addToBackStack(null)
