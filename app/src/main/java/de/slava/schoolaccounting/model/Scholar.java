@@ -41,11 +41,13 @@ public class Scholar extends BasicEntity {
      * @param newRoom
      */
     public void setRoom(Room newRoom) {
+        final Room oldRoom = room;
         if (room != null)
             room.removeScholar(this);
         this.room = newRoom;
         if (room != null)
             room.addScholar(this);
+        super.firePropertyChange("room", oldRoom, newRoom);
     }
 
     public Integer getId() {

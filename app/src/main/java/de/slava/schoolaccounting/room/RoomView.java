@@ -12,6 +12,7 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.util.Property;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
@@ -107,7 +108,19 @@ public class RoomView extends RelativeLayout {
         if (textHeader == null || this.roomModel == null)
             return;
         if (scholarsPreviewAdapter == null) {
-            scholarsPreviewAdapter = new ArrayAdapter<String>(this.getContext(), R.layout.room_scholar_preview, new ArrayList<>());
+            scholarsPreviewAdapter = new ArrayAdapter<String>(this.getContext(), R.layout.room_scholar_preview, new ArrayList<>()) {
+                // allows to disable click listeners
+                @Override
+                public boolean isEnabled(int position) {
+                    return false;
+                }
+                @Override
+                public View getView(int position, View convertView, ViewGroup parent) {
+                    View ret = super.getView(position, convertView, parent);
+                    ret.setOnClickListener(RoomView.this::onClick);
+                    return ret;
+                }
+            };
             listPreview.setAdapter(scholarsPreviewAdapter);
         }
         textHeader.setText(roomModel.getName());

@@ -66,7 +66,7 @@ public class RoomFragment extends Fragment {
         if (textHeader == null || this.roomModel == null)
             return;
         if (listAdapter == null) {
-            listAdapter = new RoomScholarItemAdapter(this.getContext(), R.layout.room_scholar_item, new ArrayList<>());
+            listAdapter = new RoomScholarItemAdapter(this, this.getContext(), R.layout.room_scholar_item, schoolModel, new ArrayList<>());
             listScholars.setAdapter(listAdapter);
         }
         textHeader.setText(roomModel.getName());

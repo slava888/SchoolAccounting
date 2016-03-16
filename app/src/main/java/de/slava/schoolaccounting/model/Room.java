@@ -47,12 +47,12 @@ public class Room extends BasicEntity {
 
     public void addScholar(Scholar scholar) {
         scholars.add(scholar);
-        super.firePropertyChange("scholars", scholars, scholars);
+        super.firePropertyChange("scholars", null, scholars);
     }
 
     public void removeScholar(Scholar scholar) {
         scholars.remove(scholar);
-        super.firePropertyChange("scholars", scholars, scholars);
+        super.firePropertyChange("scholars", null, scholars);
     }
 
     public Set<Scholar> getScholarsReadOnly() {
