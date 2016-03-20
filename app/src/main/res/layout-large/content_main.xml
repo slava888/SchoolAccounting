@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              xmlns:custom="http://schemas.android.com/apk/res-auto"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="fill_parent"
+              android:layout_height="match_parent"
+              android:orientation="horizontal"
+              android:weightSum="1.0"
+              app:layout_behavior="@string/appbar_scrolling_view_behavior"
+              tools:context="de.slava.schoolaccounting.Main"
+              tools:showIn="@layout/activity_main"
+              android:baselineAligned="false">
+
+    <fragment
+        android:id="@+id/fragmentMain"
+        android:name="de.slava.schoolaccounting.MainFragment"
+        class="de.slava.schoolaccounting.MainFragment"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="left"
+        tools:layout="@layout/main_fragment"
+        android:layout_weight="0.59"/>
+
+    <Space
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="0.02"/>
+
+    <fragment
+        android:id="@+id/fragmentRoom"
+        android:name="de.slava.schoolaccounting.room.RoomFragment"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="right"
+        tools:layout="@layout/room_fragment"
+        android:layout_weight="0.39"
+        />
+
+</LinearLayout>
+

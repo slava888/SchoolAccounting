@@ -26,7 +26,7 @@
 
     <style name="RoomStyle" parent="android:Widget.Holo.Light">
         <item name="android:padding">@dimen/room_view_padding</item>
-        <item name="android:background">@color/room_view_background</item>
+        <item name="android:background">@drawable/main_room_border</item>
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
     </style>
