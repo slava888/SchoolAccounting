@@ -1,32 +1,20 @@
 package de.slava.schoolaccounting;
 
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import butterknife.Bind;
 import butterknife.ButterKnife;
 import de.slava.schoolaccounting.model.Room;
-import de.slava.schoolaccounting.model.Scholar;
-import de.slava.schoolaccounting.model.SchoolModel;
-import de.slava.schoolaccounting.model.Storage;
-import de.slava.schoolaccounting.room.RoomView;
+import de.slava.schoolaccounting.room.IRoomSelectionListener;
+import de.slava.schoolaccounting.room.RoomFragment;
 
-public class Main extends AppCompatActivity {
+public class Main extends AppCompatActivity implements IRoomSelectionListener {
 
     private final static String TAG = "ScAcc";
-
-    private Storage storage;
-    private SchoolModel model;
 
     /**
      * Returns the tag for logging, which contains the calling class:line
@@ -51,30 +39,7 @@ public class Main extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-//        // Check that the activity is using the layout version with
-//        // the fragment_container FrameLayout
-//        if (findViewById(R.id.fragment_container) != null) {
-//
-//            // However, if we're being restored from a previous state,
-//            // then we don't need to do anything and should return or else
-//            // we could end up with overlapping fragments.
-//            if (savedInstanceState != null) {
-//                return;
-//            }
-//
-//            // Create a new Fragment to be placed in the activity layout
-//            storage = new Storage();
-//            model = storage.loadModel();
-//            MainFragment mainFragment = new MainFragment();
-//            mainFragment.initData(model);
-//
-//            // In case this activity was started with special instructions from an
-//            // Intent, pass the Intent's extras to the fragment as arguments
-//            mainFragment.setArguments(getIntent().getExtras());
-//
-//            // Add the fragment to the 'fragment_container' FrameLayout
-//            getSupportFragmentManager().beginTransaction().add(R.id.fragment_container, mainFragment).commit();
-//        }
+        MainFragment main = (MainFragment)getSupportFragmentManager().findFragmentById(R.id.fragmentMain);
 
 //        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
 //        fab.setOnClickListener(new View.OnClickListener() {
@@ -107,5 +72,23 @@ public class Main extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onRoomSelected(Room room) {
+        Log.d(Main.getTag(), String.format("Selected room %s", room));
+        RoomFragment fragment = (RoomFragment)getSupportFragmentManager().findFragmentById(R.id.fragmentRoom);
+        if (fragment != null) {
+            // two fragment layout
+            fragment.dataInit(room);
+        } else {
+            // single fragment layout
+            fragment = new RoomFragment();
+            fragment.dataInit(room);
+            this.getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragment_container, fragment, room.getName())
+                    .addToBackStack(null)
+                    .commit();
+        }
     }
 }

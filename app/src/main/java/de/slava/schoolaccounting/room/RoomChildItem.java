@@ -1,9 +1,7 @@
 package de.slava.schoolaccounting.room;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AlertDialog;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -18,38 +16,44 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import de.slava.schoolaccounting.Main;
 import de.slava.schoolaccounting.R;
+import de.slava.schoolaccounting.model.Child;
 import de.slava.schoolaccounting.model.Room;
-import de.slava.schoolaccounting.model.Scholar;
 import de.slava.schoolaccounting.model.SchoolModel;
+import de.slava.schoolaccounting.model.db.ChildDao;
+import de.slava.schoolaccounting.model.db.DB;
+import de.slava.schoolaccounting.model.db.RoomDao;
 
 /**
  * @author by V.Sysoltsev
  */
-public class RoomScholarItem extends LinearLayout {
+public class RoomChildItem extends LinearLayout {
 
     @Bind(R.id.imageView) ImageView imageView;
     @Bind(R.id.textName) TextView textName;
 
-    private SchoolModel model;
-    private Scholar scholar;
+    private Child child;
 
-    public RoomScholarItem(Context context) {
+    private DB getDb() {
+        return DB.instance(getContext());
+    }
+
+    public RoomChildItem(Context context) {
         super(context);
         init(null, 0);
     }
 
-    public RoomScholarItem(Context context, AttributeSet attrs) {
+    public RoomChildItem(Context context, AttributeSet attrs) {
         super(context, attrs);
         init(attrs, 0);
     }
 
-    public RoomScholarItem(Context context, AttributeSet attrs, int defStyleAttr) {
+    public RoomChildItem(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init(attrs, defStyleAttr);
     }
 
     private void init(AttributeSet attrs, int defStyle) {
-        View view = inflate(getContext(), R.layout.room_scholar_item, this);
+        View view = inflate(getContext(), R.layout.room_child_item, this);
         ButterKnife.bind(this, view);
         setOnClickListener(_view -> {
             showContextMenu();
@@ -57,22 +61,21 @@ public class RoomScholarItem extends LinearLayout {
         syncModelWithUI();
     }
 
-    public void dataInit(SchoolModel model, Scholar scholar) {
-        this.model = model;
-        this.scholar = scholar;
+    public void dataInit(Child child) {
+        this.child = child;
         syncModelWithUI();
     }
 
     private void syncModelWithUI() {
-        if (textName == null || scholar == null)
+        if (textName == null || child == null)
             return;
-        textName.setText(scholar.getNameFull());
+        textName.setText(child.getNameFull());
         int resId = R.drawable.person_1;
-        if (scholar.getImageId() == 2)
+        if (child.getImageId() == 2)
             resId = R.drawable.person_2;
-        else if (scholar.getImageId() == 3)
+        else if (child.getImageId() == 3)
             resId = R.drawable.person_3;
-        if (scholar.getImageId() == 4)
+        if (child.getImageId() == 4)
             resId = R.drawable.person_4;
         imageView.setImageDrawable(ContextCompat.getDrawable(getContext(), resId));
     }
@@ -82,13 +85,14 @@ public class RoomScholarItem extends LinearLayout {
         Log.d(Main.getTag(), "Request to create context menu");
         super.onCreateContextMenu(menu);
         menu.setHeaderTitle("Geht nach =>");
-        for (Room room : model.getRooms()) {
+        for (Room room : getDb().getDao(RoomDao.class).getAll(null, null)) {
             final Room _room = room;
-            if (room != scholar.getRoom()) {
+            if (room != child.getRoom()) {
                 MenuItem item = menu.add(Menu.NONE, room.getId(), room.getId(), String.format("=> %s", room.getName()));
                 item.setOnMenuItemClickListener((menuitem) -> {
                     Log.d(Main.getTag(), String.format("Move to %s", _room));
-                    scholar.setRoom(_room);
+                    child.moveToToom(_room);
+                    child = getDb().getDao(ChildDao.class).update(child);
                     return true;
                 });
             }

@@ -6,22 +6,20 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import de.slava.schoolaccounting.Main;
 import de.slava.schoolaccounting.R;
+import de.slava.schoolaccounting.model.Child;
 import de.slava.schoolaccounting.model.Room;
-import de.slava.schoolaccounting.model.Scholar;
 import de.slava.schoolaccounting.model.SchoolModel;
 
 /**
@@ -29,10 +27,9 @@ import de.slava.schoolaccounting.model.SchoolModel;
  */
 public class RoomFragment extends Fragment {
 
-    private SchoolModel schoolModel;
     private Room roomModel;
     private PropertyChangeListener roomListener = this::onRoomChanges;
-    private RoomScholarItemAdapter listAdapter;
+    private RoomChildItemAdapter listAdapter;
 
     @Bind(R.id.textHeader) TextView textHeader;
     @Bind(R.id.textNumber) TextView textNumber;
@@ -47,8 +44,13 @@ public class RoomFragment extends Fragment {
         return view;
     }
 
-    public void dataInit(SchoolModel model, Room room) {
-        this.schoolModel = model;
+    @Override
+    public void onResume() {
+        super.onResume();
+        syncModelWithUI();
+    }
+
+    public void dataInit(Room room) {
         if (this.roomModel != null)
             this.roomModel.removeChangeListener(roomListener);
         this.roomModel = room;
@@ -66,14 +68,14 @@ public class RoomFragment extends Fragment {
         if (textHeader == null || this.roomModel == null)
             return;
         if (listAdapter == null) {
-            listAdapter = new RoomScholarItemAdapter(this, this.getContext(), R.layout.room_scholar_item, schoolModel, new ArrayList<>());
+            listAdapter = new RoomChildItemAdapter(this, this.getContext(), R.layout.room_child_item, new ArrayList<>());
             listScholars.setAdapter(listAdapter);
         }
         textHeader.setText(roomModel.getName());
-        Set<Scholar> scholars = roomModel.getScholarsReadOnly();
-        textNumber.setText(String.format("%d", scholars.size()));
+        Set<Child> children = roomModel.getChildrenReadOnly();
+        textNumber.setText(String.format("%d", children.size()));
         listAdapter.clear();
-        listAdapter.addAll(scholars);
+        listAdapter.addAll(children);
     }
 
 }

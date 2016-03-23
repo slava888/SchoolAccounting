@@ -11,6 +11,23 @@ import lombok.EqualsAndHashCode;
  */
 public class BasicEntity implements Serializable {
     transient private final PropertyChangeSupport mPcs = new PropertyChangeSupport(this);
+    private Integer id;
+
+    public BasicEntity() {
+        this(null);
+    }
+
+    public BasicEntity(Integer id) {
+        this.id = id;
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
     public void addChangeListener(PropertyChangeListener listener) {
         mPcs.addPropertyChangeListener(listener);

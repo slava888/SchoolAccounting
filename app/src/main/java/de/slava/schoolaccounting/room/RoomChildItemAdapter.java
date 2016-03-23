@@ -1,43 +1,39 @@
 package de.slava.schoolaccounting.room;
 
-import android.app.Activity;
 import android.content.Context;
 import android.support.v4.app.Fragment;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 
 import java.util.List;
 
-import de.slava.schoolaccounting.model.Scholar;
+import de.slava.schoolaccounting.model.Child;
 import de.slava.schoolaccounting.model.SchoolModel;
 
 /**
  * @author by V.Sysoltsev
  */
-public class RoomScholarItemAdapter extends ArrayAdapter<Scholar> {
+public class RoomChildItemAdapter extends ArrayAdapter<Child> {
     private final Fragment parentFragment;
-    private final SchoolModel model;
     private Context context;
     int layoutResourceId;
 
-    public RoomScholarItemAdapter(Fragment parent, Context context, int resource, SchoolModel model, List<Scholar> objects) {
+    public RoomChildItemAdapter(Fragment parent, Context context, int resource, List<Child> objects) {
         super(context, resource, objects);
         this.parentFragment = parent;
-        this.model = model;
         this.context = context;
         this.layoutResourceId = resource;
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        RoomScholarItem itemView = (RoomScholarItem)convertView;
+        RoomChildItem itemView = (RoomChildItem)convertView;
         if (itemView == null) {
-            itemView = new RoomScholarItem(context);
+            itemView = new RoomChildItem(context);
             this.parentFragment.registerForContextMenu(itemView);
         }
-        itemView.dataInit(model, getItem(position));
+        itemView.dataInit(getItem(position));
         return itemView;
     }
 }

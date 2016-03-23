@@ -2,15 +2,12 @@ package de.slava.schoolaccounting.room;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Paint;
-import android.support.v4.app.Fragment;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
-import android.text.TextPaint;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.util.Property;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -26,20 +23,56 @@ import java.util.Set;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
 import de.slava.schoolaccounting.Main;
 import de.slava.schoolaccounting.R;
+import de.slava.schoolaccounting.model.Child;
 import de.slava.schoolaccounting.model.Room;
-import de.slava.schoolaccounting.model.Scholar;
 import de.slava.schoolaccounting.model.SchoolModel;
+import de.slava.schoolaccounting.model.db.DB;
+import de.slava.schoolaccounting.model.db.RoomDao;
+import lombok.Getter;
 
 
 public class RoomView extends RelativeLayout {
+
     private int colorBorder = Color.RED;
     private int colorBackground = 0xFF99FF99;
 
-    private SchoolModel schoolModel;
+    private DB getDb() {
+        return DB.instance(getContext());
+    }
     private Room roomModel;
+
+    private static class SavedState extends View.BaseSavedState {
+        @Getter
+        private int roomId;
+
+        public SavedState(Parcelable source, Room roomModel) {
+            super(source);
+            this.roomId = roomModel.getId();
+        }
+        public SavedState(Parcel source) {
+            super(source);
+            this.roomId = source.readInt();
+        }
+
+        @Override
+        public void writeToParcel(Parcel out, int flags) {
+            super.writeToParcel(out, flags);
+            out.writeInt(roomId);
+        }
+
+        public static final Parcelable.Creator<SavedState> CREATOR = new Parcelable.Creator<SavedState>() {
+            public SavedState createFromParcel(Parcel in) {
+                return new SavedState(in);
+            }
+
+            public SavedState[] newArray(int size) {
+                return new SavedState[size];
+            }
+        };
+    };
+
     private PropertyChangeListener roomListener = this::onRoomChanges;
 
     @Bind(R.id.textHeader) TextView textHeader;
@@ -78,19 +111,28 @@ public class RoomView extends RelativeLayout {
         setOnClickListener(this::onClick);
     }
 
-    private void onClick(View view) {
-        Log.d(Main.getTag(), String.format("Clicked on %s", view));
-        AppCompatActivity activity = (AppCompatActivity)getContext();
-        RoomFragment fragment = new RoomFragment();
-        fragment.dataInit(schoolModel, roomModel);
-        activity.getSupportFragmentManager().beginTransaction()
-                .replace(R.id.layoutMain, fragment, roomModel.getName())
-                .addToBackStack(null)
-                .commit();
+    @Override
+    protected Parcelable onSaveInstanceState() {
+        Parcelable superState = super.onSaveInstanceState();
+        return new SavedState(superState, roomModel);
     }
 
-    public void dataInit(SchoolModel model, Room room) {
-        this.schoolModel = model;
+    @Override
+    protected void onRestoreInstanceState(Parcelable state) {
+        SavedState ss = (SavedState) state;
+        Log.d(Main.getTag(), String.format("Restore from state for %d", ss.getRoomId()));
+        super.onRestoreInstanceState(ss.getSuperState());
+        roomModel = getDb().getDao(RoomDao.class).getById(ss.getRoomId());
+    }
+
+    private void onClick(View view) {
+        Log.d(Main.getTag(), String.format("Clicked on %s", view));
+        if (getContext() instanceof IRoomSelectionListener) {
+            ((IRoomSelectionListener)getContext()).onRoomSelected(roomModel);
+        }
+    }
+
+    public void dataInit(Room room) {
         if (this.roomModel != null)
             this.roomModel.removeChangeListener(roomListener);
         this.roomModel = room;
@@ -108,7 +150,7 @@ public class RoomView extends RelativeLayout {
         if (textHeader == null || this.roomModel == null)
             return;
         if (scholarsPreviewAdapter == null) {
-            scholarsPreviewAdapter = new ArrayAdapter<String>(this.getContext(), R.layout.room_scholar_preview, new ArrayList<>()) {
+            scholarsPreviewAdapter = new ArrayAdapter<String>(this.getContext(), R.layout.room_child_preview, new ArrayList<>()) {
                 // allows to disable click listeners
                 @Override
                 public boolean isEnabled(int position) {
@@ -124,11 +166,11 @@ public class RoomView extends RelativeLayout {
             listPreview.setAdapter(scholarsPreviewAdapter);
         }
         textHeader.setText(roomModel.getName());
-        Set<Scholar> scholars = roomModel.getScholarsReadOnly();
-        textNumber.setText(String.format("%d", scholars.size()));
+        Set<Child> children = roomModel.getChildrenReadOnly();
+        textNumber.setText(String.format("%d", children.size()));
         scholarsPreviewAdapter.clear();
         List<String> preview = new ArrayList<>();
-        for (Scholar s : roomModel.getScholarsReadOnly()) {
+        for (Child s : roomModel.getChildrenReadOnly()) {
             preview.add(s.getNameFull());
             if (preview.size() >= 3) {
                 preview.add("...");

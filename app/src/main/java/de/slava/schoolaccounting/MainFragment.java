@@ -9,12 +9,15 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import de.slava.schoolaccounting.model.Room;
 import de.slava.schoolaccounting.model.SchoolModel;
+import de.slava.schoolaccounting.model.db.DB;
+import de.slava.schoolaccounting.model.db.RoomDao;
 import de.slava.schoolaccounting.room.RoomView;
 
 /**
@@ -30,8 +33,9 @@ public class MainFragment extends Fragment {
     @Bind(R.id.roomTH) RoomView roomTH;
     @Bind(R.id.roomHof) RoomView roomHof;
 
-    private SchoolModel model;
-
+    private DB getDb() {
+        return DB.instance(getContext());
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -41,13 +45,8 @@ public class MainFragment extends Fragment {
         return ret;
     }
 
-    public void initData(SchoolModel model) {
-        this.model = model;
-        syncModelWithUI();
-    }
-
     private void syncModelWithUI() {
-        if (this.model == null || roomHome == null)
+        if (roomHome == null)
             return;
         Map<String, RoomView> room2View = new HashMap<>();
         room2View.put("Home", roomHome);
@@ -57,13 +56,14 @@ public class MainFragment extends Fragment {
         room2View.put("018", room018);
         room2View.put("TH", roomTH);
         room2View.put("Hof", roomHof);
-        for (Room room : model.getRooms()) {
+        List<Room> rooms = getDb().getDao(RoomDao.class).getAll(null, null);
+        for (Room room : rooms) {
             String id = room.getName();
             RoomView view = room2View.get(id);
             if (view == null) {
                 Log.e(getTag(), String.format("No view for room %s", id));
             } else {
-                view.dataInit(model, room);
+                view.dataInit(room);
             }
         }
     }

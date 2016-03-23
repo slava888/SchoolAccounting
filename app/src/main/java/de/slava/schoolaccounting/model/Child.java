@@ -1,10 +1,5 @@
 package de.slava.schoolaccounting.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.Accessors;
 
@@ -13,24 +8,17 @@ import lombok.experimental.Accessors;
  */
 @Accessors(chain=true)
 @ToString
-public class Scholar extends BasicEntity {
-    private Integer id;
+public class Child extends BasicEntity {
     private String nameFull;
     private Room room;
     private Integer imageId;
 
-    public Scholar() {
-        this(null, null);
-    }
+    public Child() { this(null, null); }
 
-    public Scholar(Integer id, String name) {
-        this(id, name, null);
-    }
+    public Child(Integer id, String name) { this(id, name, null, null); }
 
-    public Scholar(Integer id, String name, Room room) { this(id, name, room, null); }
-
-    public Scholar(Integer id, String name, Room room, Integer imageId) {
-        setId(id);
+    public Child(Integer id, String name, Room room, Integer imageId) {
+        super(id);
         setNameFull(name);
         setRoom(room);
         setImageId(imageId);
@@ -40,24 +28,14 @@ public class Scholar extends BasicEntity {
      * allows to move a scholar to a new room
      * @param newRoom
      */
-    public void setRoom(Room newRoom) {
+    public void moveToToom(Room newRoom) {
         final Room oldRoom = room;
         if (room != null)
-            room.removeScholar(this);
+            room.removeChild(this);
         this.room = newRoom;
         if (room != null)
-            room.addScholar(this);
+            room.addChild(this);
         super.firePropertyChange("room", oldRoom, newRoom);
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        Integer oldValue = id;
-        this.id = id;
-        super.firePropertyChange("id", oldValue, id);
     }
 
     public String getNameFull() {
@@ -74,6 +52,12 @@ public class Scholar extends BasicEntity {
         return room;
     }
 
+    public void setRoom(Room room) {
+        Room oldValue = room;
+        this.room = room;
+        super.firePropertyChange("room", oldValue, room);
+    }
+
     public Integer getImageId() {
         return imageId;
     }
@@ -83,4 +67,10 @@ public class Scholar extends BasicEntity {
         this.imageId = imageId;
         super.firePropertyChange("imageId", oldValue, imageId);
     }
+
+    @Override
+    public String toString() {
+        return String.format("%s{%d, %s, in %s}", getClass().getSimpleName(), getId(), getNameFull(), getRoom());
+    }
+
 }
