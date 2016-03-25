@@ -29,12 +29,17 @@
           android:layout_below="@+id/textHeader"
           android:layout_alignParentLeft="true"/>
 
-    <ListView
-        android:layout_width="wrap_content"
+    <GridView
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/listView"
         android:layout_below="@+id/dividerHeader"
         android:layout_alignParentLeft="true"
+        android:numColumns="auto_fit"
+        android:verticalSpacing="1sp"
+        android:horizontalSpacing="1sp"
+        android:stretchMode="columnWidth"
+        android:gravity="center"
         />
 
 </RelativeLayout>

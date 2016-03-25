@@ -15,21 +15,21 @@ import de.slava.schoolaccounting.model.BasicEntity;
  * @author by V.Sysoltsev
  */
 public abstract class BaseDao<Entity extends BasicEntity> {
-    private final DB db;
+    private final EntityManager entityManager;
 
     // only the entities from cache are allowed to be outside (due to FK handling).
     private final Map<Integer, Entity> cache = new HashMap<>();
 
-    protected BaseDao(DB db, DB.DBDaoKey key) {
-        this.db = db;
+    protected BaseDao(EntityManager entityManager, EntityManager.DBDaoKey key) {
+        this.entityManager = entityManager;
     }
 
-    protected DB getDb() {
-        return db;
+    protected EntityManager getEntityManager() {
+        return entityManager;
     }
 
     protected SQLiteDatabase getDatabase() {
-        return db.getDb();
+        return entityManager.getDb();
     }
 
     /**
@@ -60,9 +60,9 @@ public abstract class BaseDao<Entity extends BasicEntity> {
      * Add new entity to a database
      */
     public Entity add(Entity entity) {
-        assert entity.getId() == null;
-        Integer nextId = getNextId();
-        entity.setId(nextId);
+        assert entity.isTransient();
+        if (entity.getId() == null)
+            entity.setId(getNextId());
         getDatabase().insert(getTableName(), null, asCV(entity));
         return persist(entity);
     }
@@ -116,7 +116,7 @@ public abstract class BaseDao<Entity extends BasicEntity> {
      * @return
      */
     public Entity update(Entity entity) {
-        assert entity.getId() != null : "Use add() for new entities";
+        assert entity.isPersistent() && entity.getId() != null : "Use add() for new entities";
         getDatabase().update(getTableName(), asCV(entity), String.format("ID = %d", entity.getId()), null);
         return persist(entity);
     }
@@ -154,6 +154,7 @@ public abstract class BaseDao<Entity extends BasicEntity> {
         Entity fromCache = cache.get(persisted.getId());
         if (fromCache == null) {
             fromCache = persisted;
+            persisted.setEntityState(BasicEntity.State.PERSISTENT);
             cache.put(persisted.getId(), persisted);
         } else {
             mergeInto(fromCache, persisted);

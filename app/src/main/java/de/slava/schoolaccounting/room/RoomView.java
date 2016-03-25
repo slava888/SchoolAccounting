@@ -5,7 +5,6 @@ import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.support.v7.app.AppCompatActivity;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
@@ -27,8 +26,7 @@ import de.slava.schoolaccounting.Main;
 import de.slava.schoolaccounting.R;
 import de.slava.schoolaccounting.model.Child;
 import de.slava.schoolaccounting.model.Room;
-import de.slava.schoolaccounting.model.SchoolModel;
-import de.slava.schoolaccounting.model.db.DB;
+import de.slava.schoolaccounting.model.db.EntityManager;
 import de.slava.schoolaccounting.model.db.RoomDao;
 import lombok.Getter;
 
@@ -38,8 +36,8 @@ public class RoomView extends RelativeLayout {
     private int colorBorder = Color.RED;
     private int colorBackground = 0xFF99FF99;
 
-    private DB getDb() {
-        return DB.instance(getContext());
+    private EntityManager getDb() {
+        return EntityManager.instance(getContext());
     }
     private Room roomModel;
 

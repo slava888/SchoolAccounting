@@ -1,7 +1,6 @@
 package de.slava.schoolaccounting.model.db;
 
 import android.content.Context;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
@@ -14,12 +13,11 @@ import de.slava.schoolaccounting.Main;
 import de.slava.schoolaccounting.model.Child;
 import de.slava.schoolaccounting.model.Room;
 import de.slava.schoolaccounting.model.SchoolModel;
-import lombok.Getter;
 
 /**
  * @author by V.Sysoltsev
  */
-public class DB extends SQLiteOpenHelper {
+public class EntityManager extends SQLiteOpenHelper {
 
     /** a private key class to be able to construct dao **/
     public static class DBDaoKey {
@@ -47,21 +45,21 @@ public class DB extends SQLiteOpenHelper {
             " , IMAGE_FK INTEGER" + // TODO FK here
             " )";
 
-    private DB(Context context) {
+    private EntityManager(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
         db = getWritableDatabase();
     }
 
-    private static DB instance;
-    public static synchronized DB instance(Context context) {
+    private static EntityManager instance;
+    public static synchronized EntityManager instance(Context context) {
         if (instance == null) {
-            // context.deleteDatabase(DB.DATABASE_NAME);
-            instance = new DB(context);
+            // context.deleteDatabase(EntityManager.DATABASE_NAME);
+            instance = new EntityManager(context);
         }
         return instance;
     }
 
-    SQLiteDatabase db;
+    private SQLiteDatabase db;
     SQLiteDatabase getDb() {
         return db;
     }
@@ -114,6 +112,103 @@ public class DB extends SQLiteOpenHelper {
         dao.add(new Child(null, "Stefan", initial, 2));
         dao.add(new Child(null, "Sebastian", initial, 2));
         dao.add(new Child(null, "Maja", initial, 3));
+        dao.add(new Child(null, "Rocco", initial, 2));
+        dao.add(new Child(null, "Julian", initial, 2));
+        dao.add(new Child(null, "Carlos", initial, 2));
+        dao.add(new Child(null, "Benedikt", initial, 2));
+        dao.add(new Child(null, "Marko", initial, 2));
+        dao.add(new Child(null, "Ira", initial, 3));
+        dao.add(new Child(null, "Valentin", initial, 2));
+        dao.add(new Child(null, "Iva", initial, 3));
+        dao.add(new Child(null, "Miku", initial, 3));
+        dao.add(new Child(null, "Misu", initial, 3));
+        dao.add(new Child(null, "Milad", initial, 2));
+        dao.add(new Child(null, "Aikan", initial, 2));
+        dao.add(new Child(null, "Akan", initial, 2));
+        dao.add(new Child(null, "Ilaidanur", initial, 3));
+        dao.add(new Child(null, "Mila", initial, 3));
+        dao.add(new Child(null, "Maria", initial, 3));
+        dao.add(new Child(null, "Aikan", initial, 2));
+
+        String players[] = {
+                "Timo Achenbach",
+                "Benjamin Auer",
+                "Roland Benschneider",
+                "Daniel Bierofka",
+                "Philipp Bönig",
+                "Pascal Borel",
+                "Tim Borowski",
+                "Thomas Broich",
+                "Daniyel Cimen",
+                "Simon Cziommer",
+                "Christoph Dabrowski",
+                "Markus Daun",
+                "Mustafa Doğan",
+                "Marco Engelhardt",
+                "Robert Enke",
+                "Fabian Ernst",
+                "Frank Fahrenhorst",
+                "Maik Franz",
+                "Arne Friedrich",
+                "Manuel Friedrich",
+                "Clemens Fritz",
+                "Nico Frommer",
+                "Christian Gentner",
+                "Fabian Gerber",
+                "Mario Gómez",
+                "Mike Hanke",
+                "Patrick Helmes",
+                "Ingo Hertzsch",
+                "Timo Hildebrand",
+                "Andreas Hinkel",
+                "Steffen Hofmann",
+                "Alexander Huber",
+                "Simon Jentzsch",
+                "Jermaine Jones",
+                "Enrico Kern",
+                "Stefan Kießling",
+                "Thomas Kleine",
+                "Stephan Kling",
+                "Peer Kluge",
+                "Bernd Korzynietz",
+                "Markus Kreuz",
+                "Florian Kringe",
+                "Emmanuel Krontiris",
+                "Kevin Kurányi",
+                "Matthias Langkamp",
+                "Benjamin Lense",
+                "Alexander Madlung",
+                "Marcel Maltritz",
+                "Thorben Marx",
+                "Martin Meichelbeck",
+                "Alexander Meier",
+                "Alexander Meyer",
+                "Uwe Möhrle",
+                "Sven Müller",
+                "Andreas Ottl",
+                "Christoph Preuß",
+                "Tobias Rau",
+                "Simon Rolfes",
+                "Sascha Rösler",
+                "Marcel Schäfer",
+                "Sebastian Schindzielorz",
+                "Björn Schlicke",
+                "Silvio Schröter",
+                "Markus Schroth",
+                "Martin Stoll",
+                "Albert Streit",
+                "Christian Timm",
+                "Alexander Voigt",
+                "Andreas Voss",
+                "Roman Weidenfeller",
+                "Benjamin Weigelt",
+                "Timo Wenzel",
+                "Stefan Wessels"
+        };
+        for (String player : players) {
+            dao.add(new Child(null, player, initial, 5));
+        }
+
         Log.d(Main.getTag(), String.format("All children: %s", dao.getAll(null, null)));
     }
 
@@ -132,7 +227,4 @@ public class DB extends SQLiteOpenHelper {
         return defauls.iterator().next();
     }
 
-    public void saveModel(SchoolModel model) {
-        // TODO
-    }
 }

@@ -13,15 +13,15 @@ import de.slava.schoolaccounting.model.Room;
  */
 public class RoomDao extends BaseDao<Room> {
 
-    private ChildDao childDao = getDb().getDao(ChildDao.class);
+    private ChildDao childDao = getEntityManager().getDao(ChildDao.class);
 
-    protected RoomDao(DB db, DB.DBDaoKey key) {
-        super(db, key);
+    protected RoomDao(EntityManager entityManager, EntityManager.DBDaoKey key) {
+        super(entityManager, key);
     }
 
     @Override
     protected String getTableName() {
-        return DB.DATABASE_TABLE_ROOM;
+        return EntityManager.DATABASE_TABLE_ROOM;
     }
 
     @Override

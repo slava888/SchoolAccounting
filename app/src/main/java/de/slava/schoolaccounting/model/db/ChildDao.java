@@ -11,8 +11,8 @@ import de.slava.schoolaccounting.model.Room;
  */
 public class ChildDao extends BaseDao<Child> {
 
-    protected ChildDao(DB db, DB.DBDaoKey key) {
-        super(db, key);
+    protected ChildDao(EntityManager entityManager, EntityManager.DBDaoKey key) {
+        super(entityManager, key);
     }
 
     @Override
@@ -46,7 +46,7 @@ public class ChildDao extends BaseDao<Child> {
         Integer roomFk = cursor.getInt(cursor.getColumnIndex("ROOM_FK")); // TODO: lazy loading? Maybe I should have used hibernate after all...
         Room room = null;
         if (roomFk != null) {
-            RoomDao roomDao = getDb().getDao(RoomDao.class);
+            RoomDao roomDao = getEntityManager().getDao(RoomDao.class);
             room = roomDao.getById(roomFk);
         }
         Integer imageFk = cursor.getInt(cursor.getColumnIndex("IMAGE_FK"));

@@ -6,6 +6,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.GridView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -33,7 +34,7 @@ public class RoomFragment extends Fragment {
 
     @Bind(R.id.textHeader) TextView textHeader;
     @Bind(R.id.textNumber) TextView textNumber;
-    @Bind(R.id.listView) ListView listScholars;
+    @Bind(R.id.listView) GridView listScholars;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {

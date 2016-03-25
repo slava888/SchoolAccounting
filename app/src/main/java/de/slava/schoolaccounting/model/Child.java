@@ -7,7 +7,6 @@ import lombok.experimental.Accessors;
  * @author by V.Sysoltsev
  */
 @Accessors(chain=true)
-@ToString
 public class Child extends BasicEntity {
     private String nameFull;
     private Room room;

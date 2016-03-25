@@ -1,7 +1,6 @@
 package de.slava.schoolaccounting;
 
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -15,8 +14,7 @@ import java.util.Map;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import de.slava.schoolaccounting.model.Room;
-import de.slava.schoolaccounting.model.SchoolModel;
-import de.slava.schoolaccounting.model.db.DB;
+import de.slava.schoolaccounting.model.db.EntityManager;
 import de.slava.schoolaccounting.model.db.RoomDao;
 import de.slava.schoolaccounting.room.RoomView;
 
@@ -33,8 +31,8 @@ public class MainFragment extends Fragment {
     @Bind(R.id.roomTH) RoomView roomTH;
     @Bind(R.id.roomHof) RoomView roomHof;
 
-    private DB getDb() {
-        return DB.instance(getContext());
+    private EntityManager getDb() {
+        return EntityManager.instance(getContext());
     }
 
     @Override
