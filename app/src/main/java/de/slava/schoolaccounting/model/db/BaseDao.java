@@ -155,9 +155,11 @@ public abstract class BaseDao<Entity extends BasicEntity> {
         if (fromCache == null) {
             fromCache = persisted;
             persisted.setEntityState(BasicEntity.State.PERSISTENT);
+            persisted.setPersistingDao(this);
             cache.put(persisted.getId(), persisted);
         } else {
-            mergeInto(fromCache, persisted);
+            if (fromCache != persisted)
+                mergeInto(fromCache, persisted);
         }
         return fetchRelations(fromCache);
     }

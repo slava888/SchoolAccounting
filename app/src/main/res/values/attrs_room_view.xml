@@ -1,8 +1,6 @@
 <resources>
     <declare-styleable name="RoomView">
         <attr name="roomName" format="string" />
-        <attr name="colorBorder" format="color" />
-        <attr name="colorBackground" format="color" />
         <attr name="roomStyle" format="reference"/>
     </declare-styleable>
 </resources>

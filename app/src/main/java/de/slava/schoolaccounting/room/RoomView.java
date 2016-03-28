@@ -1,12 +1,13 @@
 package de.slava.schoolaccounting.room;
 
+import android.content.ClipDescription;
 import android.content.Context;
-import android.content.res.TypedArray;
-import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.DragEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -33,13 +34,14 @@ import lombok.Getter;
 
 public class RoomView extends RelativeLayout {
 
-    private int colorBorder = Color.RED;
-    private int colorBackground = 0xFF99FF99;
+//    private int colorBorder = Color.RED;
+//    private int colorBackground = 0xFF99FF99;
 
     private EntityManager getDb() {
         return EntityManager.instance(getContext());
     }
     private Room roomModel;
+    private Drawable savedBackground;
 
     private static class SavedState extends View.BaseSavedState {
         @Getter
@@ -98,11 +100,11 @@ public class RoomView extends RelativeLayout {
         View view = inflate(getContext(), R.layout.room_view, this);
         ButterKnife.bind(this, view);
 
-        // Load attributes
-        final TypedArray a = getContext().obtainStyledAttributes(attrs, R.styleable.RoomView, defStyle, 0);
-        colorBorder = a.getColor(R.styleable.RoomView_colorBorder, colorBorder);
-        colorBackground = a.getColor(R.styleable.RoomView_colorBackground, colorBackground);
-        a.recycle();
+//        // Load attributes
+//        final TypedArray a = getContext().obtainStyledAttributes(attrs, R.styleable.RoomView, defStyle, 0);
+//        colorBorder = a.getColor(R.styleable.RoomView_colorBorder, colorBorder);
+//        colorBackground = a.getColor(R.styleable.RoomView_colorBackground, colorBackground);
+//        a.recycle();
 
         syncModelWithUI();
 
@@ -169,13 +171,63 @@ public class RoomView extends RelativeLayout {
         scholarsPreviewAdapter.clear();
         List<String> preview = new ArrayList<>();
         for (Child s : roomModel.getChildrenReadOnly()) {
-            preview.add(s.getNameFull());
             if (preview.size() >= 3) {
                 preview.add("...");
                 break;
             }
+            preview.add(s.getNameFull());
         }
         scholarsPreviewAdapter.addAll(preview);
     }
 
+    @Override
+    public boolean onDragEvent(DragEvent event) {
+        final int action = event.getAction();
+        switch (action) {
+            case DragEvent.ACTION_DRAG_STARTED: {
+                // check if the thing being dragged is something I can accept
+                final ClipDescription desc = event.getClipDescription();
+                if (desc.hasMimeType(ClipDescription.MIMETYPE_TEXT_PLAIN) && event.getLocalState() instanceof Child) {
+                    Log.d(Main.getTag(), String.format("The view %s would accept %s", roomModel, event.getLocalState()));
+                    savedBackground = getBackground();
+                    setBackgroundResource(R.drawable.main_room_border_drag_accept);
+                    invalidate();
+                    return true;
+                }
+                break;
+            }
+
+            case DragEvent.ACTION_DRAG_ENTERED:
+                setBackgroundResource(R.drawable.main_room_border_drag_over);
+                invalidate();
+                return true;
+
+            case DragEvent.ACTION_DRAG_LOCATION:
+                // need something?
+                return true;
+
+            case DragEvent.ACTION_DRAG_EXITED:
+                setBackgroundResource(R.drawable.main_room_border_drag_accept);
+                invalidate();
+                return true;
+
+            case DragEvent.ACTION_DROP:
+                return moveChildToRoom((Child)event.getLocalState());
+
+            case DragEvent.ACTION_DRAG_ENDED:
+                if (savedBackground != null) {
+                    setBackground(savedBackground);
+                    invalidate();
+                }
+                return true;
+
+        }
+        return false;
+    }
+
+    private boolean moveChildToRoom(Child child) {
+        Log.d(Main.getTag(), String.format("Move child %s to room %s", child, roomModel));
+        child.moveToToom(roomModel);
+        return true;
+    }
 }

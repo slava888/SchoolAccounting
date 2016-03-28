@@ -1,12 +1,15 @@
 package de.slava.schoolaccounting.room;
 
+import android.content.ClipData;
 import android.content.Context;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.ContextMenu;
+import android.view.GestureDetector;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -26,15 +29,27 @@ import de.slava.schoolaccounting.model.db.RoomDao;
  * @author by V.Sysoltsev
  */
 public class RoomChildItem extends LinearLayout {
+    public static final String CHILD_TAG = "Child";
 
     @Bind(R.id.imageView) ImageView imageView;
     @Bind(R.id.textName) TextView textName;
 
     private Child child;
+    private boolean beingDragged = false;
 
     private EntityManager getDb() {
         return EntityManager.instance(getContext());
     }
+
+    final GestureDetector gestureDetector = new GestureDetector(getContext(), new GestureDetector.SimpleOnGestureListener() {
+        public void onLongPress(MotionEvent e) {
+            Log.d(Main.getTag(), "Longpress detected");
+        }
+        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+            startDrag();
+            return true;
+        };
+    });
 
     public RoomChildItem(Context context) {
         super(context);
@@ -54,9 +69,14 @@ public class RoomChildItem extends LinearLayout {
     private void init(AttributeSet attrs, int defStyle) {
         View view = inflate(getContext(), R.layout.room_child_item, this);
         ButterKnife.bind(this, view);
-        setOnClickListener(_view -> {
-            showContextMenu();
-        });
+        setOnTouchListener((_view, _event) -> gestureDetector.onTouchEvent(_event));
+//        setOnClickListener(_view -> {
+//            ClipData dragData = ClipData.newPlainText(CHILD_TAG, child.getNameFull());
+//            View.DragShadowBuilder myShadow = new View.DragShadowBuilder(this);
+//            //showContextMenu();
+//            Log.d(Main.getTag(), String.format("Drag started with %s", child));
+//            _view.startDrag(dragData, myShadow, child, 0);
+//        });
         syncModelWithUI();
     }
 
@@ -93,11 +113,16 @@ public class RoomChildItem extends LinearLayout {
                 item.setOnMenuItemClickListener((menuitem) -> {
                     Log.d(Main.getTag(), String.format("Move to %s", _room));
                     child.moveToToom(_room);
-                    child = getDb().getDao(ChildDao.class).update(child);
                     return true;
                 });
             }
         }
     }
 
+    private void startDrag() {
+        ClipData dragData = ClipData.newPlainText(child.getNameFull(), CHILD_TAG);
+        View.DragShadowBuilder myShadow = new View.DragShadowBuilder(this);
+        Log.d(Main.getTag(), String.format("Drag started with %s", child));
+        startDrag(dragData, myShadow, child, 0);
+    }
 }

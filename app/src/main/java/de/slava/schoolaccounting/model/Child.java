@@ -35,6 +35,8 @@ public class Child extends BasicEntity {
         if (room != null)
             room.addChild(this);
         super.firePropertyChange("room", oldRoom, newRoom);
+        if (getPersistingDao() != null)
+            getPersistingDao().update(this);
     }
 
     public String getNameFull() {

@@ -1,19 +1,26 @@
 package de.slava.schoolaccounting.model;
 
+import android.util.Log;
+
+import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.Serializable;
 
+import de.slava.schoolaccounting.Main;
+import de.slava.schoolaccounting.model.db.BaseDao;
+
 /**
  * @author by V.Sysoltsev
  */
-public class BasicEntity implements Serializable {
+public abstract class BasicEntity implements Serializable {
 
     public static enum State {
         TRANSIENT, // entity is not bound with entity manager
         PERSISTENT // entity is bound with entity manager
     }
     private State entityState;
+    private BaseDao persistingDao;
 
     transient private final PropertyChangeSupport mPcs = new PropertyChangeSupport(this);
     private Integer id;
@@ -55,6 +62,14 @@ public class BasicEntity implements Serializable {
         this.entityState = entityState;
     }
 
+    public BaseDao getPersistingDao() {
+        return persistingDao;
+    }
+
+    public void setPersistingDao(BaseDao persistingDao) {
+        this.persistingDao = persistingDao;
+    }
+
     /**
      * Returns true if the entity is not yet associate with persistence context
      * @return
@@ -70,4 +85,5 @@ public class BasicEntity implements Serializable {
     public boolean isPersistent() {
         return getEntityState() == State.PERSISTENT;
     }
+
 }
