@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.GridView;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.beans.PropertyChangeEvent;
@@ -69,7 +70,9 @@ public class RoomFragment extends Fragment {
         if (textHeader == null || this.roomModel == null)
             return;
         if (listAdapter == null) {
-            listAdapter = new RoomChildItemAdapter(this, this.getContext(), R.layout.room_child_item, new ArrayList<>());
+            RelativeLayout background = (RelativeLayout)getActivity().findViewById(R.id.mainLayout);
+            assert background != null;
+            listAdapter = new RoomChildItemAdapter(this, this.getContext(), R.layout.room_child_item, new ArrayList<>(), background);
             listScholars.setAdapter(listAdapter);
         }
         textHeader.setText(roomModel.getName());

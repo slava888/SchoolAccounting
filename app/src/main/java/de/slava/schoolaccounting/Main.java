@@ -86,7 +86,7 @@ public class Main extends AppCompatActivity implements IRoomSelectionListener {
             fragment = new RoomFragment();
             fragment.dataInit(room);
             this.getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fragment_container, fragment, room.getName())
+                    .replace(R.id.mainLayout, fragment, room.getName())
                     .addToBackStack(null)
                     .commit();
         }

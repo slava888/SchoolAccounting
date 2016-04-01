@@ -25,6 +25,7 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import de.slava.schoolaccounting.Main;
 import de.slava.schoolaccounting.R;
+import de.slava.schoolaccounting.dnd.DNDObject;
 import de.slava.schoolaccounting.model.Child;
 import de.slava.schoolaccounting.model.Room;
 import de.slava.schoolaccounting.model.db.EntityManager;
@@ -187,8 +188,8 @@ public class RoomView extends RelativeLayout {
             case DragEvent.ACTION_DRAG_STARTED: {
                 // check if the thing being dragged is something I can accept
                 final ClipDescription desc = event.getClipDescription();
-                if (desc.hasMimeType(ClipDescription.MIMETYPE_TEXT_PLAIN) && event.getLocalState() instanceof Child) {
-                    Log.d(Main.getTag(), String.format("The view %s would accept %s", roomModel, event.getLocalState()));
+                if (desc.hasMimeType(ClipDescription.MIMETYPE_TEXT_PLAIN) && DNDObject.isInstanceOf(event.getLocalState(), Child.class)) {
+                    //Log.d(Main.getTag(), String.format("The view %s would accept %s", roomModel, event.getLocalState()));
                     savedBackground = getBackground();
                     setBackgroundResource(R.drawable.main_room_border_drag_accept);
                     invalidate();
@@ -212,7 +213,7 @@ public class RoomView extends RelativeLayout {
                 return true;
 
             case DragEvent.ACTION_DROP:
-                return moveChildToRoom((Child)event.getLocalState());
+                return moveChildToRoom(((DNDObject<Child>)event.getLocalState()).getObject());
 
             case DragEvent.ACTION_DRAG_ENDED:
                 if (savedBackground != null) {

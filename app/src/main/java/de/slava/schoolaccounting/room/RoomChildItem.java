@@ -1,27 +1,33 @@
 package de.slava.schoolaccounting.room;
 
 import android.content.ClipData;
+import android.content.ClipDescription;
 import android.content.Context;
+import android.graphics.Point;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.ContextMenu;
+import android.view.DragEvent;
 import android.view.GestureDetector;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import de.slava.schoolaccounting.dnd.DNDContextMenu;
 import de.slava.schoolaccounting.Main;
 import de.slava.schoolaccounting.R;
+import de.slava.schoolaccounting.dnd.DNDObject;
 import de.slava.schoolaccounting.model.Child;
 import de.slava.schoolaccounting.model.Room;
-import de.slava.schoolaccounting.model.db.ChildDao;
 import de.slava.schoolaccounting.model.db.EntityManager;
 import de.slava.schoolaccounting.model.db.RoomDao;
 
@@ -37,6 +43,8 @@ public class RoomChildItem extends LinearLayout {
     private Child child;
     private boolean beingDragged = false;
 
+    private RelativeLayout layoutToAttachContextMenu;
+
     private EntityManager getDb() {
         return EntityManager.instance(getContext());
     }
@@ -46,37 +54,21 @@ public class RoomChildItem extends LinearLayout {
             Log.d(Main.getTag(), "Longpress detected");
         }
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-            startDrag();
+            startDrag(e1);
             return true;
         };
     });
 
-    public RoomChildItem(Context context) {
+    public RoomChildItem(Context context, RelativeLayout layoutToAttachContextMenu) {
         super(context);
         init(null, 0);
-    }
-
-    public RoomChildItem(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        init(attrs, 0);
-    }
-
-    public RoomChildItem(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
-        init(attrs, defStyleAttr);
+        this.layoutToAttachContextMenu = layoutToAttachContextMenu;
     }
 
     private void init(AttributeSet attrs, int defStyle) {
         View view = inflate(getContext(), R.layout.room_child_item, this);
         ButterKnife.bind(this, view);
         setOnTouchListener((_view, _event) -> gestureDetector.onTouchEvent(_event));
-//        setOnClickListener(_view -> {
-//            ClipData dragData = ClipData.newPlainText(CHILD_TAG, child.getNameFull());
-//            View.DragShadowBuilder myShadow = new View.DragShadowBuilder(this);
-//            //showContextMenu();
-//            Log.d(Main.getTag(), String.format("Drag started with %s", child));
-//            _view.startDrag(dragData, myShadow, child, 0);
-//        });
         syncModelWithUI();
     }
 
@@ -119,10 +111,32 @@ public class RoomChildItem extends LinearLayout {
         }
     }
 
-    private void startDrag() {
+    private void startDrag(MotionEvent e) {
+        if (beingDragged)
+            return;
+        beingDragged = true;
         ClipData dragData = ClipData.newPlainText(child.getNameFull(), CHILD_TAG);
         View.DragShadowBuilder myShadow = new View.DragShadowBuilder(this);
         Log.d(Main.getTag(), String.format("Drag started with %s", child));
-        startDrag(dragData, myShadow, child, 0);
+        DNDObject<Child> dndObject = new DNDObject<>(child);
+        this.setOnDragListener((view, event) -> {
+            switch (event.getAction()) {
+                case DragEvent.ACTION_DRAG_ENDED:
+                    beingDragged = false;
+                    // fallthrough
+                case DragEvent.ACTION_DRAG_STARTED:
+                case DragEvent.ACTION_DRAG_ENTERED:
+                case DragEvent.ACTION_DRAG_EXITED:
+                case DragEvent.ACTION_DROP:
+                    dndObject.updateState(event.getAction());
+                    break;
+            }
+            return true;
+        });
+        startDrag(dragData, myShadow, dndObject, 0);
+        assert dndObject.getDragState() == DragEvent.ACTION_DRAG_STARTED;
+        TextView tv = new TextView(getContext());
+        tv.setText("Here");
+        DNDContextMenu menu = new DNDContextMenu(tv, e, layoutToAttachContextMenu, dndObject);
     }
 }

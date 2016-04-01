@@ -1,45 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:orientation="vertical"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:background="@drawable/room_room_border">
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/room_room_border"
+                android:orientation="vertical">
 
     <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="@android:style/TextAppearance.DeviceDefault.Large"
         android:id="@+id/textHeader"
-        android:text="Header"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
-        android:layout_toLeftOf="@+id/textNumber" />
-
-    <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAppearance="@android:style/TextAppearance.DeviceDefault.Large"
-        android:text="XXX"
-        android:id="@+id/textNumber"
+        android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
-        android:layout_alignParentRight="true"/>
+        android:layout_toLeftOf="@+id/textNumber"
+        android:text="Header"
+        android:textAppearance="@android:style/TextAppearance.DeviceDefault.Large"/>
 
-    <View style="@style/Divider"
-          android:id="@+id/dividerHeader"
-          android:layout_below="@+id/textHeader"
-          android:layout_alignParentLeft="true"/>
+    <TextView
+        android:id="@+id/textNumber"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:text="XXX"
+        android:textAppearance="@android:style/TextAppearance.DeviceDefault.Large"/>
+
+    <View
+        android:id="@+id/dividerHeader"
+        style="@style/Divider"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/textHeader"/>
 
     <GridView
+        android:id="@+id/listView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/listView"
-        android:layout_below="@+id/dividerHeader"
         android:layout_alignParentLeft="true"
-        android:numColumns="auto_fit"
-        android:verticalSpacing="1sp"
-        android:horizontalSpacing="1sp"
-        android:stretchMode="columnWidth"
+        android:layout_below="@+id/dividerHeader"
         android:gravity="center"
+        android:horizontalSpacing="1sp"
+        android:numColumns="auto_fit"
+        android:stretchMode="columnWidth"
+        android:verticalSpacing="1sp"
         />
 
 </RelativeLayout>
