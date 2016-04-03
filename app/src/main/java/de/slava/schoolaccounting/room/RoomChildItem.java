@@ -3,13 +3,16 @@ package de.slava.schoolaccounting.room;
 import android.content.ClipData;
 import android.content.ClipDescription;
 import android.content.Context;
+import android.graphics.Color;
 import android.graphics.Point;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.ContextMenu;
 import android.view.DragEvent;
 import android.view.GestureDetector;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -39,6 +42,7 @@ public class RoomChildItem extends LinearLayout {
 
     @Bind(R.id.imageView) ImageView imageView;
     @Bind(R.id.textName) TextView textName;
+    public final static boolean USE_STD_CONTEXT_MENU = true;
 
     private Child child;
     private boolean beingDragged = false;
@@ -95,6 +99,8 @@ public class RoomChildItem extends LinearLayout {
 
     @Override
     protected void onCreateContextMenu(ContextMenu menu) {
+        if (!USE_STD_CONTEXT_MENU)
+            return;
         Log.d(Main.getTag(), "Request to create context menu");
         super.onCreateContextMenu(menu);
         menu.setHeaderTitle("Geht nach =>");
@@ -135,8 +141,35 @@ public class RoomChildItem extends LinearLayout {
         });
         startDrag(dragData, myShadow, dndObject, 0);
         assert dndObject.getDragState() == DragEvent.ACTION_DRAG_STARTED;
-        TextView tv = new TextView(getContext());
-        tv.setText("Here");
-        DNDContextMenu menu = new DNDContextMenu(tv, e, layoutToAttachContextMenu, dndObject);
+        View cmenu = LayoutInflater.from(getContext()).inflate(R.layout.room_fragment_cmenu_rooms, null);
+        ViewGroup layout = (ViewGroup) cmenu.findViewById(R.id.cmenuLayout);
+        for (Room room : getDb().getDao(RoomDao.class).getAll(null, null)) {
+            final Room _room = room;
+            if (room != child.getRoom()) {
+                layout.addView(createTV(room.getName()));
+            }
+        }
+//        for (int i=0; i<8; i++)
+//            layout.addView(createTV(String.format("T%02d", i+1)));
+        if (!USE_STD_CONTEXT_MENU) {
+            DNDContextMenu menu = new DNDContextMenu(cmenu, e, layoutToAttachContextMenu, dndObject);
+        }
     }
+
+    private TextView createTV(String text) {
+        TextView tv = new TextView(getContext());
+        tv.setText(text);
+        ViewGroup.LayoutParams p = tv.getLayoutParams();
+        if (p == null) {
+            p = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        } else {
+            p.width = ViewGroup.LayoutParams.WRAP_CONTENT;
+            p.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+        }
+        tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 36);
+        tv.setShadowLayer(5, -5, 5, Color.BLACK);
+        tv.setBackground(ContextCompat.getDrawable(getContext(), R.drawable.oval_background));
+        return tv;
+    }
+
 }
