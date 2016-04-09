@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    style="@style/FullSizeLayout"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context="de.slava.schoolaccounting.journal.JournalActivity"
+    tools:showIn="@layout/activity_journal">
+
+    <GridView
+        android:id="@+id/journalListView"
+        android:gravity="center"
+        android:horizontalSpacing="1sp"
+        android:numColumns="auto_fit"
+        android:stretchMode="columnWidth"
+        android:verticalSpacing="1sp"
+        style="@style/FullSizeLayout"
+        android:background="@drawable/journal_background"
+        android:layout_above="@+id/journalBottomToolbar"/>
+
+    <LinearLayout
+        android:id="@+id/journalBottomToolbar"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="&lt;Calendar&gt;>"
+            android:id="@+id/journalCalendar"/>
+    </LinearLayout>
+
+</RelativeLayout>

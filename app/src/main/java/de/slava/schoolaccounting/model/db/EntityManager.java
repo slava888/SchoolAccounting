@@ -31,18 +31,27 @@ public class EntityManager extends SQLiteOpenHelper {
     public static final String DATABASE_NAME = "SchoolAccounting";
     public static final String DATABASE_TABLE_ROOM = "ROOM";
     public static final String DATABASE_TABLE_CHILD = "CHILD";
+    public static final String DATABASE_TABLE_JOURNAL = "JOURNAL";
 
     private static final String SQL_CREATE_ROOMS = "create table " + DATABASE_TABLE_ROOM + " ( " +
-            "   ID INTEGER NOT NULL PRIMARY KEY ASC AUTOINCREMENT" +
-            " , NAME TEXT NOT NULL UNIQUE" +
-            " , INITIAL INTEGER NOT NULL DEFAULT 0" +
+            "   " + BaseRawDao.COLUMN_ID + " INTEGER NOT NULL PRIMARY KEY ASC AUTOINCREMENT" +
+            " , " + RoomDao.COLUMN_NAME + " TEXT NOT NULL UNIQUE" +
+            " , " + RoomDao.COLUMN_INITIAL + " INTEGER NOT NULL DEFAULT 0" +
+            " , " + RoomDao.COLUMN_PROTOCOL_ON_ENTRY + " INTEGER NOT NULL DEFAULT 0" +
             " )";
 
     private static final String SQL_CREATE_CHILDREN = "create table " + DATABASE_TABLE_CHILD + " ( " +
-            "   ID INTEGER NOT NULL PRIMARY KEY ASC AUTOINCREMENT" +
-            " , NAME TEXT NOT NULL UNIQUE" +
-            " , ROOM_FK INTEGER NOT NULL REFERENCES " + DATABASE_TABLE_ROOM + " (ID)" +
-            " , IMAGE_FK INTEGER" + // TODO FK here
+            "   " + BaseRawDao.COLUMN_ID + " INTEGER NOT NULL PRIMARY KEY ASC AUTOINCREMENT" +
+            " , " + ChildDao.COLUMN_NAME + " TEXT NOT NULL UNIQUE" +
+            " , " + ChildDao.COLUMN_ROOM_FK + " INTEGER NOT NULL REFERENCES " + DATABASE_TABLE_ROOM + " (ID)" +
+            " , " + ChildDao.COLUMN_IMAGE_FK + " INTEGER" + // TODO FK here
+            " )";
+
+    private static final String SQL_CREATE_JOURNAL = "create table " + DATABASE_TABLE_JOURNAL + " ( " +
+            "   " + BaseRawDao.COLUMN_ID + " INTEGER NOT NULL PRIMARY KEY ASC AUTOINCREMENT" +
+            " , " + JournalDao.COLUMN_CHILD_FK + " INTEGER NOT NULL REFERENCES " + DATABASE_TABLE_CHILD + " (ID)" +
+            " , " + JournalDao.COLUMN_ROOM_FK + " INTEGER NOT NULL REFERENCES " + DATABASE_TABLE_ROOM + " (ID)" +
+            " , " + JournalDao.COLUMN_TIME + " DATETIME NOT NULL" +
             " )";
 
     private EntityManager(Context context) {
@@ -69,6 +78,7 @@ public class EntityManager extends SQLiteOpenHelper {
         this.db = db;
         db.execSQL(SQL_CREATE_ROOMS);
         db.execSQL(SQL_CREATE_CHILDREN);
+        db.execSQL(SQL_CREATE_JOURNAL);
         populateRooms();
         populateChildren();
     }
@@ -86,6 +96,8 @@ public class EntityManager extends SQLiteOpenHelper {
                 dao = new ChildDao(this, daoKey);
             else if (daoClass == RoomDao.class)
                 dao = new RoomDao(this, daoKey);
+            else if (daoClass == JournalDao.class)
+                dao = new JournalDao(this, daoKey);
             else {
                 assert false : "Unknown DAO requested";
                 return null;
@@ -98,7 +110,7 @@ public class EntityManager extends SQLiteOpenHelper {
     private void populateRooms() {
         RoomDao dao = getDao(RoomDao.class);
         for (String roomName : new String[]{"Home", "?", "011", "017", "018", "TH", "Hof"}) {
-            Room room = dao.add(new Room(null, roomName, roomName.equals("?")));
+            Room room = dao.add(new Room(null, roomName, roomName.equals("?"), roomName.equals("Home")));
             // Log.d(Main.getTag(), String.format("Created room %s", room));
         }
         Log.d(Main.getTag(), String.format("All rooms: %s", dao.getAll(null, null)));

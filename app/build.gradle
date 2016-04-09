@@ -30,12 +30,10 @@ dependencies {
     testCompile 'junit:junit:4.12'
     provided 'org.projectlombok:lombok:1.16.8'
     apt 'org.projectlombok:lombok:1.16.8'
-    /*compile 'com.google.dagger:dagger:2.1'
-    compile 'com.google.dagger:dagger-compiler:2.1'*/
     compile 'com.android.support:appcompat-v7:23.2.1'
     compile 'com.android.support:design:23.2.1'
     compile 'com.jakewharton:butterknife:7.0.1'
     compile 'com.android.support:support-v4:23.2.1'
     compile 'com.android.support:recyclerview-v7:23.2.1'
-//    compile 'com.sababado.circularview:library:1.0.+'
+//    compile 'de.codecrafters.tableview:tableview:1.1.0'
 }

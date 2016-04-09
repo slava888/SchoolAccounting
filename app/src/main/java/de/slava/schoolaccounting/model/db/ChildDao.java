@@ -9,7 +9,10 @@ import de.slava.schoolaccounting.model.Room;
 /**
  * @author by V.Sysoltsev
  */
-public class ChildDao extends BaseDao<Child> {
+public class ChildDao extends BaseJPADao<Child> {
+    public final static String COLUMN_NAME = "NAME";
+    public final static String COLUMN_ROOM_FK = "ROOM_FK";
+    public final static String COLUMN_IMAGE_FK = "IMAGE_FK";
 
     protected ChildDao(EntityManager entityManager, EntityManager.DBDaoKey key) {
         super(entityManager, key);
@@ -23,15 +26,15 @@ public class ChildDao extends BaseDao<Child> {
     @Override
     protected ContentValues asCV(Child room) {
         ContentValues ret = new ContentValues();
-        ret.put("ID", room.getId());
-        ret.put("NAME", room.getNameFull());
-        ret.put("ROOM_FK", room.getRoom() != null ? room.getRoom().getId() : null);
-        ret.put("IMAGE_FK", room.getImageId());
+        ret.put(COLUMN_ID, room.getId());
+        ret.put(COLUMN_NAME, room.getNameFull());
+        ret.put(COLUMN_ROOM_FK, room.getRoom() != null ? room.getRoom().getId() : null);
+        ret.put(COLUMN_IMAGE_FK, room.getImageId());
         return ret;
     }
 
     private final static String[] columns = {
-        "ID", "NAME", "ROOM_FK", "IMAGE_FK"
+        COLUMN_ID, COLUMN_NAME, COLUMN_ROOM_FK, COLUMN_IMAGE_FK
     };
 
     @Override
@@ -41,15 +44,15 @@ public class ChildDao extends BaseDao<Child> {
 
     @Override
     protected Child fromCursor(Cursor cursor) {
-        Integer id = cursor.getInt(cursor.getColumnIndex("ID"));
-        String name = cursor.getString(cursor.getColumnIndex("NAME"));
-        Integer roomFk = cursor.getInt(cursor.getColumnIndex("ROOM_FK")); // TODO: lazy loading? Maybe I should have used hibernate after all...
+        Integer id = cursor.getInt(cursor.getColumnIndex(COLUMN_ID));
+        String name = cursor.getString(cursor.getColumnIndex(COLUMN_NAME));
+        Integer roomFk = cursor.getInt(cursor.getColumnIndex(COLUMN_ROOM_FK)); // TODO: lazy loading? Maybe I should have used hibernate after all...
         Room room = null;
         if (roomFk != null) {
             RoomDao roomDao = getEntityManager().getDao(RoomDao.class);
             room = roomDao.getById(roomFk);
         }
-        Integer imageFk = cursor.getInt(cursor.getColumnIndex("IMAGE_FK"));
+        Integer imageFk = cursor.getInt(cursor.getColumnIndex(COLUMN_IMAGE_FK));
         return new Child(id, name, room, imageFk);
 
     }

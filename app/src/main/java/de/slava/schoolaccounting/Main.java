@@ -1,5 +1,6 @@
 package de.slava.schoolaccounting;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -8,6 +9,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import butterknife.ButterKnife;
+import de.slava.schoolaccounting.journal.JournalActivity;
 import de.slava.schoolaccounting.model.Room;
 import de.slava.schoolaccounting.room.IRoomSelectionListener;
 import de.slava.schoolaccounting.room.RoomFragment;
@@ -64,11 +66,9 @@ public class Main extends AppCompatActivity implements IRoomSelectionListener {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        switch (item.getItemId()) {
+            case R.id.menuJournal:
+                return openJournal();
         }
 
         return super.onOptionsItemSelected(item);
@@ -90,5 +90,11 @@ public class Main extends AppCompatActivity implements IRoomSelectionListener {
                     .addToBackStack(null)
                     .commit();
         }
+    }
+
+    private boolean openJournal() {
+        Intent intent = new Intent(this, JournalActivity.class);
+        startActivity(intent);
+        return true;
     }
 }

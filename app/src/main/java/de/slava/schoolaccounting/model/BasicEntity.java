@@ -1,14 +1,10 @@
 package de.slava.schoolaccounting.model;
 
-import android.util.Log;
-
-import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.Serializable;
 
-import de.slava.schoolaccounting.Main;
-import de.slava.schoolaccounting.model.db.BaseDao;
+import de.slava.schoolaccounting.model.db.BaseJPADao;
 
 /**
  * @author by V.Sysoltsev
@@ -20,7 +16,7 @@ public abstract class BasicEntity implements Serializable {
         PERSISTENT // entity is bound with entity manager
     }
     private State entityState;
-    private BaseDao persistingDao;
+    private BaseJPADao persistingDao;
 
     transient private final PropertyChangeSupport mPcs = new PropertyChangeSupport(this);
     private Integer id;
@@ -62,11 +58,11 @@ public abstract class BasicEntity implements Serializable {
         this.entityState = entityState;
     }
 
-    public BaseDao getPersistingDao() {
+    public BaseJPADao getPersistingDao() {
         return persistingDao;
     }
 
-    public void setPersistingDao(BaseDao persistingDao) {
+    public void setPersistingDao(BaseJPADao persistingDao) {
         this.persistingDao = persistingDao;
     }
 
@@ -84,6 +80,15 @@ public abstract class BasicEntity implements Serializable {
      */
     public boolean isPersistent() {
         return getEntityState() == State.PERSISTENT;
+    }
+
+    /**
+     * Converts integer to boolean. Null is treated as false.
+     * @param i
+     * @return
+     */
+    public static boolean i2b(Integer i) {
+        return i != null && i != 0;
     }
 
 }

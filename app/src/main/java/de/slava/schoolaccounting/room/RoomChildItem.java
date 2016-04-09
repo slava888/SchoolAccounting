@@ -5,6 +5,7 @@ import android.content.ClipDescription;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Point;
+import android.graphics.drawable.Drawable;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -85,16 +86,20 @@ public class RoomChildItem extends LinearLayout {
         if (textName == null || child == null)
             return;
         textName.setText(child.getNameFull());
+        imageView.setImageDrawable(getChildImage(getContext(), child.getImageId()));
+    }
+
+    public static Drawable getChildImage(Context context, Integer imageId) {
         int resId = R.drawable.person_1;
-        if (child.getImageId() == 2)
+        if (imageId == 2)
             resId = R.drawable.person_2;
-        else if (child.getImageId() == 3)
+        else if (imageId == 3)
             resId = R.drawable.person_3;
-        if (child.getImageId() == 4)
+        if (imageId == 4)
             resId = R.drawable.person_4;
-        if (child.getImageId() == 5)
+        if (imageId == 5)
             resId = R.drawable.person_5;
-        imageView.setImageDrawable(ContextCompat.getDrawable(getContext(), resId));
+        return ContextCompat.getDrawable(context, resId);
     }
 
     @Override

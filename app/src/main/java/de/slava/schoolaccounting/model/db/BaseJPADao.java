@@ -12,39 +12,16 @@ import java.util.Map;
 import de.slava.schoolaccounting.model.BasicEntity;
 
 /**
+ * DAO based on JPA entities
+ *
  * @author by V.Sysoltsev
  */
-public abstract class BaseDao<Entity extends BasicEntity> {
-    private final EntityManager entityManager;
-
+public abstract class BaseJPADao<Entity extends BasicEntity> extends BaseRawDao {
     // only the entities from cache are allowed to be outside (due to FK handling).
     private final Map<Integer, Entity> cache = new HashMap<>();
 
-    protected BaseDao(EntityManager entityManager, EntityManager.DBDaoKey key) {
-        this.entityManager = entityManager;
-    }
-
-    protected EntityManager getEntityManager() {
-        return entityManager;
-    }
-
-    protected SQLiteDatabase getDatabase() {
-        return entityManager.getDb();
-    }
-
-    /**
-     * Descendants to declare table name here.
-     *
-     * @return
-     */
-    abstract protected String getTableName();
-
-    public int getNextId() {
-        try (Cursor c = getDatabase().rawQuery("select max(ID) from " + getTableName(), null)) {
-            c.moveToFirst();
-            int v = c.getInt(0);
-            return v + 1;
-        }
+    protected BaseJPADao(EntityManager entityManager, EntityManager.DBDaoKey key) {
+        super(entityManager, key);
     }
 
     /**
@@ -127,7 +104,7 @@ public abstract class BaseDao<Entity extends BasicEntity> {
      * @param entity
      * @return
      */
-    public Entity addUpdate(Entity entity) {
+    public Entity upsert(Entity entity) {
        if (entity.getId() == null)
            return add(entity);
         else
@@ -149,7 +126,12 @@ public abstract class BaseDao<Entity extends BasicEntity> {
         return entity;
     }
 
-    private Entity persist(Entity persisted) {
+    /**
+     * Descendants may override behavior
+     * @param persisted
+     * @return
+     */
+    protected Entity persist(Entity persisted) {
         assert persisted.getId() != null;
         Entity fromCache = cache.get(persisted.getId());
         if (fromCache == null) {

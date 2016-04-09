@@ -5,13 +5,17 @@ import android.database.Cursor;
 
 import java.util.List;
 
+import de.slava.schoolaccounting.model.BasicEntity;
 import de.slava.schoolaccounting.model.Child;
 import de.slava.schoolaccounting.model.Room;
 
 /**
  * @author by V.Sysoltsev
  */
-public class RoomDao extends BaseDao<Room> {
+public class RoomDao extends BaseJPADao<Room> {
+    public final static String COLUMN_NAME = "NAME";
+    public final static String COLUMN_INITIAL = "INITIAL";
+    public final static String COLUMN_PROTOCOL_ON_ENTRY = "PROTOCOL_ON_ENTRY";
 
     private ChildDao childDao = getEntityManager().getDao(ChildDao.class);
 
@@ -27,14 +31,15 @@ public class RoomDao extends BaseDao<Room> {
     @Override
     protected ContentValues asCV(Room room) {
         ContentValues ret = new ContentValues();
-        ret.put("ID", room.getId());
-        ret.put("NAME", room.getName());
-        ret.put("INITIAL", room.isInitial());
+        ret.put(COLUMN_ID, room.getId());
+        ret.put(COLUMN_NAME, room.getName());
+        ret.put(COLUMN_INITIAL, room.isInitial());
+        ret.put(COLUMN_PROTOCOL_ON_ENTRY, room.isProtocolOnEntry());
         return ret;
     }
 
     private final static String[] columns = {
-        "ID", "NAME", "INITIAL"
+        COLUMN_ID, COLUMN_NAME, COLUMN_INITIAL, COLUMN_PROTOCOL_ON_ENTRY
     };
 
     @Override
@@ -44,16 +49,17 @@ public class RoomDao extends BaseDao<Room> {
 
     @Override
     protected Room fromCursor(Cursor cursor) {
-        Integer id = cursor.getInt(cursor.getColumnIndex("ID"));
-        String name = cursor.getString(cursor.getColumnIndex("NAME"));
-        Integer initial = cursor.getInt(cursor.getColumnIndex("INITIAL"));
-        return new Room(id, name, initial != null && initial != 0);
+        Integer id = cursor.getInt(cursor.getColumnIndex(COLUMN_ID));
+        String name = cursor.getString(cursor.getColumnIndex(COLUMN_NAME));
+        Integer initial = cursor.getInt(cursor.getColumnIndex(COLUMN_INITIAL));
+        Integer protocolOnEntry = cursor.getInt(cursor.getColumnIndex(COLUMN_PROTOCOL_ON_ENTRY));
+        return new Room(id, name, BasicEntity.i2b(initial), BasicEntity.i2b(protocolOnEntry));
     }
 
     @Override
     protected Room fetchRelations(Room entity) {
         entity = super.fetchRelations(entity);
-        List<Child> children = childDao.getAll(String.format("ROOM_FK=%d", entity.getId()), "NAME ASC");
+        List<Child> children = childDao.getAll(String.format("%s=%d", ChildDao.COLUMN_ROOM_FK, entity.getId()), String.format("%s ASC", ChildDao.COLUMN_NAME));
         entity.setChildren(children);
         return entity;
     }
@@ -63,5 +69,6 @@ public class RoomDao extends BaseDao<Room> {
         assert target.getId() == source.getId();
         target.setName(source.getName());
         target.setInitial(source.isInitial());
+        target.setProtocolOnEntry(source.isProtocolOnEntry());
     }
 }
