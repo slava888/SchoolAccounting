@@ -27,12 +27,11 @@
         android:layout_alignParentBottom="true"
         >
 
-        <TextView
+        <de.slava.schoolaccounting.journal.DateRangeWidget
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="&lt;Calendar&gt;>"
-            android:id="@+id/journalCalendar"/>
+            android:id="@+id/calendar"/>
+
     </LinearLayout>
 
 </RelativeLayout>

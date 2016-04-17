@@ -9,7 +9,7 @@ import de.slava.schoolaccounting.model.db.BaseJPADao;
 /**
  * @author by V.Sysoltsev
  */
-public abstract class BasicEntity implements Serializable {
+public abstract class BasicEntity extends BaseObservable implements Serializable {
 
     public static enum State {
         TRANSIENT, // entity is not bound with entity manager
@@ -18,7 +18,6 @@ public abstract class BasicEntity implements Serializable {
     private State entityState;
     private BaseJPADao persistingDao;
 
-    transient private final PropertyChangeSupport mPcs = new PropertyChangeSupport(this);
     private Integer id;
 
     public BasicEntity() {
@@ -36,18 +35,6 @@ public abstract class BasicEntity implements Serializable {
 
     public void setId(Integer id) {
         this.id = id;
-    }
-
-    public void addChangeListener(PropertyChangeListener listener) {
-        mPcs.addPropertyChangeListener(listener);
-    }
-
-    public void removeChangeListener(PropertyChangeListener listener) {
-        mPcs.removePropertyChangeListener(listener);
-    }
-
-    public <T> void firePropertyChange(String propertyName, T oldValue, T newValue) {
-        mPcs.firePropertyChange(propertyName, oldValue, newValue);
     }
 
     public State getEntityState() {

@@ -113,7 +113,7 @@ public class EntityManager extends SQLiteOpenHelper {
             Room room = dao.add(new Room(null, roomName, roomName.equals("?"), roomName.equals("Home")));
             // Log.d(Main.getTag(), String.format("Created room %s", room));
         }
-        Log.d(Main.getTag(), String.format("All rooms: %s", dao.getAll(null, null)));
+        Log.d(Main.getTag(), String.format("All rooms: %s", dao.getAll(null, null, null)));
     }
 
     private void populateChildren() {
@@ -221,15 +221,15 @@ public class EntityManager extends SQLiteOpenHelper {
             dao.add(new Child(null, player, initial, 5));
         }
 
-        Log.d(Main.getTag(), String.format("All children: %s", dao.getAll(null, null)));
+        Log.d(Main.getTag(), String.format("All children: %s", dao.getAll(null, null, null)));
     }
 
     private Room ensureInitialRoomExists() {
         RoomDao dao = getDao(RoomDao.class);
-        List<Room> defauls = dao.getAll("INITIAL = 1", null);
+        List<Room> defauls = dao.getAll("INITIAL = 1", null, null);
         if (defauls.isEmpty()) {
             Log.w(Main.getTag(), "No initial room defined, mark first as one");
-            defauls = dao.getAll(null, null);
+            defauls = dao.getAll(null, null, null);
             assert !defauls.isEmpty() : "No rooms?!?";
             Room def = defauls.iterator().next();
             def.setInitial(true);

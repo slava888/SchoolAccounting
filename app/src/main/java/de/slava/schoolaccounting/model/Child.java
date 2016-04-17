@@ -44,7 +44,7 @@ public class Child extends BasicEntity {
     }
 
     public void setNameFull(String nameFull) {
-        String oldValue = nameFull;
+        String oldValue = this.nameFull;
         this.nameFull = nameFull;
         super.firePropertyChange("nameFull", oldValue, nameFull);
     }
@@ -54,7 +54,7 @@ public class Child extends BasicEntity {
     }
 
     public void setRoom(Room room) {
-        Room oldValue = room;
+        Room oldValue = this.room;
         this.room = room;
         super.firePropertyChange("room", oldValue, room);
     }
@@ -64,7 +64,7 @@ public class Child extends BasicEntity {
     }
 
     public void setImageId(Integer imageId) {
-        Integer oldValue = imageId;
+        Integer oldValue = this.imageId;
         this.imageId = imageId;
         super.firePropertyChange("imageId", oldValue, imageId);
     }

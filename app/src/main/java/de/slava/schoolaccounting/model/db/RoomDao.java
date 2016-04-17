@@ -59,7 +59,7 @@ public class RoomDao extends BaseJPADao<Room> {
     @Override
     protected Room fetchRelations(Room entity) {
         entity = super.fetchRelations(entity);
-        List<Child> children = childDao.getAll(String.format("%s=%d", ChildDao.COLUMN_ROOM_FK, entity.getId()), String.format("%s ASC", ChildDao.COLUMN_NAME));
+        List<Child> children = childDao.getAll(String.format("%s=%d", ChildDao.COLUMN_ROOM_FK, entity.getId()), null, String.format("%s ASC", ChildDao.COLUMN_NAME));
         entity.setChildren(children);
         return entity;
     }

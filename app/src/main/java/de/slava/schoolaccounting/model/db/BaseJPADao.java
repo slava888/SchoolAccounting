@@ -48,12 +48,13 @@ public abstract class BaseJPADao<Entity extends BasicEntity> extends BaseRawDao 
      * Get-all query. Filter/order may be null.
      *
      * @param where
+     * @param args
      * @param orderBy
      * @return
      */
-    public List<Entity> getAll(String where, String orderBy) {
+    public List<Entity> getAll(String where, String args[], String orderBy) {
         List<Entity> ret = new ArrayList<>();
-        try (Cursor c = getDatabase().query(getTableName(), getColumns(), where, null, null, null, orderBy)) {
+        try (Cursor c = getDatabase().query(getTableName(), getColumns(), where, args, null, null, orderBy)) {
             while (c.moveToNext()) {
                 ret.add(persist(fromCursor(c)));
             }
@@ -66,7 +67,7 @@ public abstract class BaseJPADao<Entity extends BasicEntity> extends BaseRawDao 
         Entity fromCache = cache.get(id);
         if (fromCache != null)
             return fromCache;
-        List<Entity> ret = getAll(String.format("ID = %d", id), null);
+        List<Entity> ret = getAll("ID = ?", new String[] { id.toString() }, null);
         return ret.isEmpty() ? null : persist(ret.iterator().next());
     }
 

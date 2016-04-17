@@ -8,13 +8,16 @@ import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.List;
 import java.util.Objects;
 
 import de.slava.schoolaccounting.Main;
 import de.slava.schoolaccounting.model.BasicEntity;
 import de.slava.schoolaccounting.model.Child;
+import de.slava.schoolaccounting.model.DateRangeFilter;
 import de.slava.schoolaccounting.model.JournalEntry;
 import de.slava.schoolaccounting.model.Room;
+import de.slava.schoolaccounting.util.DateUtils;
 import de.slava.schoolaccounting.util.StringUtils;
 
 import static de.slava.schoolaccounting.util.DateUtils.*;
@@ -74,7 +77,7 @@ public class JournalDao extends BaseJPADao<JournalEntry> {
         }
         String dateString = cursor.getString(cursor.getColumnIndex(COLUMN_TIME));
         Calendar date = Calendar.getInstance();
-        if (StringUtils.isBlank(dateString)) {
+        if (!StringUtils.isBlank(dateString)) {
             try {
                 Date d = dfDateTime.parse(dateString);
                 date.setTime(d);
@@ -138,5 +141,14 @@ public class JournalDao extends BaseJPADao<JournalEntry> {
         Integer exisitingId = findBySameDay(child, room, timestamp);
         JournalEntry entry = new JournalEntry(exisitingId, child, room, timestamp);
         return super.upsert(entry);
+    }
+
+    public List<JournalEntry> getAllFiltered(DateRangeFilter filter) {
+        String args[] = {
+                DateUtils.dateToString(filter.getFrom()),
+                DateUtils.dateToString(DateUtils.thisPlus(filter.getTo(), Calendar.DAY_OF_MONTH, 1))
+        };
+        // TODO sorting
+        return getAll(String.format("%s between ? and ?", COLUMN_TIME), args, null);
     }
 }

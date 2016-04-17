@@ -54,7 +54,7 @@ public class MainFragment extends Fragment {
         room2View.put("018", room018);
         room2View.put("TH", roomTH);
         room2View.put("Hof", roomHof);
-        List<Room> rooms = getDb().getDao(RoomDao.class).getAll(null, null);
+        List<Room> rooms = getDb().getDao(RoomDao.class).getAll(null, null, null);
         for (Room room : rooms) {
             String id = room.getName();
             RoomView view = room2View.get(id);

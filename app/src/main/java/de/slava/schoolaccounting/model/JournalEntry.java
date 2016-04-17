@@ -27,7 +27,7 @@ public class JournalEntry extends BasicEntity {
     }
 
     public void setChild(Child child) {
-        Child oldValue = child;
+        Child oldValue = this.child;
         this.child = child;
         super.firePropertyChange("child", oldValue, child);
     }
@@ -37,7 +37,7 @@ public class JournalEntry extends BasicEntity {
     }
 
     public void setRoom(Room room) {
-        Room oldValue = room;
+        Room oldValue = this.room;
         this.room = room;
         super.firePropertyChange("room", oldValue, room);
     }
@@ -52,7 +52,7 @@ public class JournalEntry extends BasicEntity {
     }
 
     public void setTimestamp(Calendar timestamp) {
-        Calendar oldValue = timestamp;
+        Calendar oldValue = this.timestamp;
         this.timestamp = timestamp;
         super.firePropertyChange("timestamp", oldValue, timestamp);
     }

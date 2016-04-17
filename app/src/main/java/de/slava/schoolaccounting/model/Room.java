@@ -42,7 +42,7 @@ public class Room extends BasicEntity {
     }
 
     public void setName(String name) {
-        String oldValue = name;
+        String oldValue = this.name;
         this.name = name;
         super.firePropertyChange("name", oldValue, name);
     }
@@ -52,7 +52,7 @@ public class Room extends BasicEntity {
     }
 
     public void setInitial(boolean initial) {
-        boolean oldValue = initial;
+        boolean oldValue = this.initial;
         this.initial = initial;
         super.firePropertyChange("initial", oldValue, initial);
     }
@@ -62,7 +62,7 @@ public class Room extends BasicEntity {
     }
 
     public void setProtocolOnEntry(boolean protocolOnEntry) {
-        boolean oldValue = protocolOnEntry;
+        boolean oldValue = this.protocolOnEntry;
         this.protocolOnEntry = protocolOnEntry;
         super.firePropertyChange("protocolOnEntry", oldValue, protocolOnEntry);
     }

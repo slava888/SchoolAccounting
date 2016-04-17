@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="horizontal"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent">
+
+    <ImageButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/btnQuickLastWeek"
+        android:layout_gravity="center_vertical"
+        android:background="@drawable/img_calendar_prev_week"/>
+
+    <ImageButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/btnQuickThisWeek"
+        android:layout_gravity="center_vertical"
+        android:background="@drawable/img_calendar_this_week"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="New Button"
+        android:id="@+id/btnDateFrom"
+        android:layout_gravity="center_vertical"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="New Button"
+        android:id="@+id/btnDateTo"
+        android:layout_gravity="center_vertical"/>
+
+    <ImageButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/btnActionView"
+        android:layout_gravity="center_vertical"
+        android:background="@drawable/refresh"/>
+
+    <ImageButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/btnActionExport"
+        android:layout_gravity="center_vertical"
+        android:background="@drawable/img_export_csv"/>
+
+</LinearLayout>

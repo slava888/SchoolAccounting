@@ -109,7 +109,7 @@ public class RoomChildItem extends LinearLayout {
         Log.d(Main.getTag(), "Request to create context menu");
         super.onCreateContextMenu(menu);
         menu.setHeaderTitle("Geht nach =>");
-        for (Room room : getDb().getDao(RoomDao.class).getAll(null, null)) {
+        for (Room room : getDb().getDao(RoomDao.class).getAll(null, null, null)) {
             final Room _room = room;
             if (room != child.getRoom()) {
                 MenuItem item = menu.add(Menu.NONE, room.getId(), room.getId(), String.format("=> %s", room.getName()));
@@ -148,7 +148,7 @@ public class RoomChildItem extends LinearLayout {
         assert dndObject.getDragState() == DragEvent.ACTION_DRAG_STARTED;
         View cmenu = LayoutInflater.from(getContext()).inflate(R.layout.room_fragment_cmenu_rooms, null);
         ViewGroup layout = (ViewGroup) cmenu.findViewById(R.id.cmenuLayout);
-        for (Room room : getDb().getDao(RoomDao.class).getAll(null, null)) {
+        for (Room room : getDb().getDao(RoomDao.class).getAll(null, null, null)) {
             final Room _room = room;
             if (room != child.getRoom()) {
                 layout.addView(createTV(room.getName()));
