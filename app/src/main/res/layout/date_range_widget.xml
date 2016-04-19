@@ -23,21 +23,24 @@
         android:layout_height="wrap_content"
         android:text="New Button"
         android:id="@+id/btnDateFrom"
-        android:layout_gravity="center_vertical"/>
+        android:layout_gravity="center_vertical"
+        android:textAppearance="@android:style/TextAppearance.Large"/>
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="New Button"
         android:id="@+id/btnDateTo"
-        android:layout_gravity="center_vertical"/>
+        android:layout_gravity="center_vertical"
+        android:textAppearance="@android:style/TextAppearance.Large"/>
 
     <ImageButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/btnActionView"
         android:layout_gravity="center_vertical"
-        android:background="@drawable/refresh"/>
+        android:src="@drawable/refresh"
+        android:background="@drawable/refresh_glow"/>
 
     <ImageButton
         android:layout_width="wrap_content"

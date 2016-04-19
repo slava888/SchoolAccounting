@@ -2,6 +2,7 @@ package de.slava.schoolaccounting.util;
 
 import android.util.Log;
 
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -23,6 +24,16 @@ public class DateUtils {
      */
     public static String dateToString(Calendar cal) {
         return cal != null ? dfDate.format(cal.getTime()) : null;
+    }
+
+    /**
+     * Converts calendar to String (contains date only)
+     * @param cal
+     * @param df
+     * @return
+     */
+    public static String dateToString(Calendar cal, DateFormat df) {
+        return cal != null ? df.format(cal.getTime()) : null;
     }
 
     /**

@@ -1,12 +1,18 @@
 package de.slava.schoolaccounting.journal;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.ImageButton;
@@ -15,6 +21,7 @@ import android.widget.PopupWindow;
 
 import java.beans.PropertyChangeEvent;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -39,6 +46,9 @@ public class DateRangeWidget extends LinearLayout {
     @Bind(R.id.btnDateTo) Button btnDateTo;
     @Bind(R.id.btnActionView) ImageButton btnActionView;
     @Bind(R.id.btnActionExport) ImageButton btnActionExport;
+
+    private final static SimpleDateFormat calDateFormat = new SimpleDateFormat("EEEE dd MMM");
+    private AnimatorSet animRefresh;
 
     @Getter
     private DateRangeFilter model;
@@ -196,12 +206,49 @@ public class DateRangeWidget extends LinearLayout {
     private void syncModelWithUI(PropertyChangeEvent event) {
         Log.d(Main.getTag(), String.format("Sync with %s", model));
         if (event == null || Objects.equals(event.getPropertyName(), "from"))
-            btnDateFrom.setText(DateUtils.dateToString(model.getFrom()));
+            btnDateFrom.setText(DateUtils.dateToString(model.getFrom(), calDateFormat));
         if (event == null || Objects.equals(event.getPropertyName(), "to"))
-            btnDateTo.setText(DateUtils.dateToString(model.getTo()));
+            btnDateTo.setText(DateUtils.dateToString(model.getTo(), calDateFormat));
+        // animate refresh button
+        if (event != null) {
+            if (animRefresh == null) {
+                final Drawable src = btnActionView.getDrawable();
+                ObjectAnimator fadeOut = ObjectAnimator.ofInt(src, "alpha", 255, 0);
+                fadeOut.setDuration(1500);
+                ObjectAnimator fadeIn = ObjectAnimator.ofInt(src, "alpha", 0, 255);
+                fadeIn.setDuration(1500);
+                AnimatorSet anim = new AnimatorSet();
+                anim.playSequentially(fadeOut, fadeIn);
+                anim.setInterpolator(new AccelerateDecelerateInterpolator());
+                anim.addListener(new AnimatorListenerAdapter() {
+                    private boolean cancelled = false;
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+                        cancelled = true;
+                        super.onAnimationCancel(animation);
+                        src.setAlpha(255);
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        if (!cancelled)
+                            anim.start();
+                    }
+                });
+                animRefresh = anim;
+            }
+            if (!animRefresh.isRunning())
+                animRefresh.start();
+        }
     }
 
     private void onBtnView() {
+        if (animRefresh != null && animRefresh.isRunning()) {
+            animRefresh.cancel();
+            animRefresh = null;
+        }
+
         if (onBtnApply != null)
             onBtnApply.run();
     }
