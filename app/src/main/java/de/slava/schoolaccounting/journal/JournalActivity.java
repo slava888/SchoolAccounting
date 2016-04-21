@@ -1,16 +1,20 @@
 package de.slava.schoolaccounting.journal;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.GridView;
-import android.widget.ListView;
 
+import com.scorchworks.demo.SimpleFileDialog;
+
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,6 +28,8 @@ import de.slava.schoolaccounting.model.db.EntityManager;
 import de.slava.schoolaccounting.model.db.JournalDao;
 
 public class JournalActivity extends AppCompatActivity {
+
+    private final static int FILE_PICKER_RESULT_CODE = 1;
 
     @Bind(R.id.journalListView) GridView listView;
     @Bind(R.id.calendar) DateRangeWidget calendar;
@@ -65,8 +71,39 @@ public class JournalActivity extends AppCompatActivity {
     }
 
     private void onExportDateRange(DateRangeFilter filter) {
-        // TODO
-        Log.d(Main.getTag(), "TODO: export");
+        // open file picker dialog
+        SimpleFileDialog FileOpenDialog =  new SimpleFileDialog(this, "FileOpen", dir -> exportToFile(dir));
+        //You can change the default filename using the public variable "Default_File_Name"
+        FileOpenDialog.Default_File_Name = "";
+        FileOpenDialog.chooseFile_or_Dir();
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == FILE_PICKER_RESULT_CODE && resultCode == RESULT_OK) {
+            // Log.d(Main.getTag(), String.format("Selected: %s", data.getStringExtra(FilePickerActivity.FILE_EXTRA_DATA_PATH)));
+        }
+    }
+
+    private final static String CSV_SEPARATOR = ";";
+    private final static String CSV_EOL = "\n";
+
+    private void exportToFile(String file) {
+        Log.d(Main.getTag(), String.format("Export to file %s", file));
+        List<JournalEntry> entries = getDb().getDao(JournalDao.class).getAllFiltered(dateRangeFilter);
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+            for (JournalEntry entry : entries) {
+                writer.write(entry.getChild().getNameFull());
+                writer.write(CSV_SEPARATOR);
+                writer.write(entry.getTimestampString());
+                writer.write(CSV_EOL);
+            }
+        } catch (IOException e) {
+            Log.w(Main.getTag(), String.format("%s writing into file %s: %s", e.getClass().getSimpleName(), file, e.getMessage()));
+            new AlertDialog.Builder(this)
+                    .setTitle(String.format("Fehler beim Schreiben in %s", file))
+                    .setMessage(e.getLocalizedMessage())
+                    .show();
+        }
+    }
 }

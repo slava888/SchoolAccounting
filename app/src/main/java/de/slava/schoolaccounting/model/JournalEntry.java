@@ -3,6 +3,8 @@ package de.slava.schoolaccounting.model;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
+import de.slava.schoolaccounting.util.DateUtils;
+
 /**
  * @author by V.Sysoltsev
  */
@@ -48,7 +50,7 @@ public class JournalEntry extends BasicEntity {
 
     private final static SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     public String getTimestampString() {
-        return getTimestamp() != null ? df.format(getTimestamp()) : null;
+        return getTimestamp() != null ? DateUtils.dateToString(getTimestamp(), df) : null;
     }
 
     public void setTimestamp(Calendar timestamp) {
