@@ -2,6 +2,8 @@
     <string name="app_name">Schüler Buchhaltung</string>
     <string name="menu_journal">Protokoll</string>
     <string name="title_activity_journal">Protokoll-Ansicht</string>
+    <string name="protocol.export.error">Fehler beim Schreiben in %s</string>
+    <string name="protocol.export.success">Auszug wurde erfolgreich exportiert:\n%s</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>

@@ -27,7 +27,7 @@ public class EntityManager extends SQLiteOpenHelper {
     private final static DBDaoKey daoKey = new DBDaoKey();
     private Map<Class<?>, Object> daoCache = new HashMap<>();
 
-    public static final int DATABASE_VERSION = 1;
+    public static final int DATABASE_VERSION = 2;
     public static final String DATABASE_NAME = "SchoolAccounting";
     public static final String DATABASE_TABLE_ROOM = "ROOM";
     public static final String DATABASE_TABLE_CHILD = "CHILD";
@@ -52,6 +52,12 @@ public class EntityManager extends SQLiteOpenHelper {
             " , " + JournalDao.COLUMN_CHILD_FK + " INTEGER NOT NULL REFERENCES " + DATABASE_TABLE_CHILD + " (ID)" +
             " , " + JournalDao.COLUMN_ROOM_FK + " INTEGER NOT NULL REFERENCES " + DATABASE_TABLE_ROOM + " (ID)" +
             " , " + JournalDao.COLUMN_TIME + " DATETIME NOT NULL" +
+            " )";
+
+    private static final String SQL_CREATE_OPTIONS = "create table " + OptionsDao.TABLE_NAME + " ( " +
+            "   " + BaseRawDao.COLUMN_ID + " INTEGER NOT NULL PRIMARY KEY ASC AUTOINCREMENT" +
+            " , " + OptionsDao.COLUMN_OPTION + " TEXT NOT NULL UNIQUE" +
+            " , " + OptionsDao.COLUMN_VALUE + " TEXT " +
             " )";
 
     private EntityManager(Context context) {
@@ -79,6 +85,7 @@ public class EntityManager extends SQLiteOpenHelper {
         db.execSQL(SQL_CREATE_ROOMS);
         db.execSQL(SQL_CREATE_CHILDREN);
         db.execSQL(SQL_CREATE_JOURNAL);
+        db.execSQL(SQL_CREATE_OPTIONS);
         populateRooms();
         populateChildren();
     }
@@ -86,7 +93,10 @@ public class EntityManager extends SQLiteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         this.db = db;
-        // no versions yet
+        switch(oldVersion) {
+            case 1:
+                db.execSQL(SQL_CREATE_OPTIONS);
+        }
     }
 
     public <T> T getDao(Class<T> daoClass) {
@@ -98,6 +108,8 @@ public class EntityManager extends SQLiteOpenHelper {
                 dao = new RoomDao(this, daoKey);
             else if (daoClass == JournalDao.class)
                 dao = new JournalDao(this, daoKey);
+            else if (daoClass == OptionsDao.class)
+                dao = new OptionsDao(this, daoKey);
             else {
                 assert false : "Unknown DAO requested";
                 return null;

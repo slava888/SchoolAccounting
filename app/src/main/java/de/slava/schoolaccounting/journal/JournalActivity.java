@@ -9,6 +9,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.GridView;
+import android.widget.Toast;
 
 import com.scorchworks.demo.SimpleFileDialog;
 
@@ -101,9 +102,10 @@ public class JournalActivity extends AppCompatActivity {
         } catch (IOException e) {
             Log.w(Main.getTag(), String.format("%s writing into file %s: %s", e.getClass().getSimpleName(), file, e.getMessage()));
             new AlertDialog.Builder(this)
-                    .setTitle(String.format("Fehler beim Schreiben in %s", file))
+                    .setTitle(getString(R.string.protocol_export_error, file))
                     .setMessage(e.getLocalizedMessage())
                     .show();
         }
+        Toast.makeText(this, getString(R.string.protocol_export_success, file), Toast.LENGTH_LONG).show();
     }
 }

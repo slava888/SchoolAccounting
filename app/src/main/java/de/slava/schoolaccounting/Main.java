@@ -10,7 +10,11 @@ import android.view.MenuItem;
 
 import butterknife.ButterKnife;
 import de.slava.schoolaccounting.journal.JournalActivity;
+import de.slava.schoolaccounting.model.AppOption;
 import de.slava.schoolaccounting.model.Room;
+import de.slava.schoolaccounting.model.db.EntityManager;
+import de.slava.schoolaccounting.model.db.OptionsDao;
+import de.slava.schoolaccounting.model.db.RoomDao;
 import de.slava.schoolaccounting.room.IRoomSelectionListener;
 import de.slava.schoolaccounting.room.RoomFragment;
 
@@ -42,6 +46,15 @@ public class Main extends AppCompatActivity implements IRoomSelectionListener {
         setSupportActionBar(toolbar);
 
         MainFragment main = (MainFragment)getSupportFragmentManager().findFragmentById(R.id.fragmentMain);
+
+        Integer lastSelectedRoom = getDb().getDao(OptionsDao.class).getOption(AppOption.LAST_VIEWED_ROOM, Integer.class);
+        Log.d(Main.getTag(), String.format("TODO: restore last selected room: %s", lastSelectedRoom));
+        if (lastSelectedRoom != null) {
+            Room room = getDb().getDao(RoomDao.class).getById(lastSelectedRoom);
+            if (room != null) {
+                selectRoom(room, true);
+            }
+        }
 
 //        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
 //        fab.setOnClickListener(new View.OnClickListener() {
@@ -77,19 +90,34 @@ public class Main extends AppCompatActivity implements IRoomSelectionListener {
     @Override
     public void onRoomSelected(Room room) {
         Log.d(Main.getTag(), String.format("Selected room %s", room));
+        selectRoom(room, false);
+    }
+
+    private void selectRoom(Room room, boolean justStarting) {
         RoomFragment fragment = (RoomFragment)getSupportFragmentManager().findFragmentById(R.id.fragmentRoom);
         if (fragment != null) {
             // two fragment layout
             fragment.dataInit(room);
+            if (!justStarting) {
+                // save last selected room in options
+                Log.d(Main.getTag(), String.format("Save last selected room: %s", room.getId()));
+                getDb().getDao(OptionsDao.class).setOption(AppOption.LAST_VIEWED_ROOM, room.getId());
+            }
         } else {
             // single fragment layout
-            fragment = new RoomFragment();
-            fragment.dataInit(room);
-            this.getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.mainLayout, fragment, room.getName())
-                    .addToBackStack(null)
-                    .commit();
+            if (!justStarting) {
+                fragment = new RoomFragment();
+                fragment.dataInit(room);
+                this.getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.mainLayout, fragment, room.getName())
+                        .addToBackStack(null)
+                        .commit();
+            }
         }
+    }
+
+    private EntityManager getDb() {
+        return EntityManager.instance(this);
     }
 
     private boolean openJournal() {

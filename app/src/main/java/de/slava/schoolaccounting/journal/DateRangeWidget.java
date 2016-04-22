@@ -254,6 +254,7 @@ public class DateRangeWidget extends LinearLayout {
     }
 
     private void onBtnExport() {
+        onBtnView();
         if (onBtnExportToCsv != null)
             onBtnExportToCsv.run();
     }
