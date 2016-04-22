@@ -11,6 +11,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import de.slava.schoolaccounting.Main;
+import de.slava.schoolaccounting.R;
 import de.slava.schoolaccounting.model.db.JournalDao;
 import de.slava.schoolaccounting.util.DateUtils;
 import lombok.AllArgsConstructor;
@@ -21,6 +22,26 @@ import lombok.experimental.Accessors;
  */
 @Accessors(chain=true)
 public class Room extends BasicEntity {
+    public static enum Name {
+        ROOM_HOME(R.string.room_home),
+        ROOM_MITTAGSBETREUUNG(R.string.room_mb),
+        ROOM_111(R.string.room_111),
+        ROOM_017(R.string.room_017),
+        ROOM_018(R.string.room_018),
+        ROOM_TURNHALLE(R.string.room_TH),
+        ROOM_HOF(R.string.room_Hof);
+
+        private final int roomResourceKey;
+
+        Name(int roomResourceKey) {
+            this.roomResourceKey = roomResourceKey;
+        }
+
+        public int getRoomResourceKey() {
+            return roomResourceKey;
+        }
+    }
+
     private String name;
     private boolean initial;
     private boolean protocolOnEntry;

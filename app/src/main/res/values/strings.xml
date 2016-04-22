@@ -5,6 +5,14 @@
     <string name="protocol.export.error">Fehler beim Schreiben in %s</string>
     <string name="protocol.export.success">Auszug wurde erfolgreich exportiert:\n%s</string>
 
+    <string name="room.home">Home</string>
+    <string name="room.mb">M/B</string>
+    <string name="room.111">111</string>
+    <string name="room.017">017</string>
+    <string name="room.018">018</string>
+    <string name="room.TH">Turnhalle</string>
+    <string name="room.Hof">Hof</string>
+
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

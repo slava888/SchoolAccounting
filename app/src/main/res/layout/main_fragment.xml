@@ -28,16 +28,16 @@
         android:layout_marginRight="@dimen/activity_divider_padding">
 
         <de.slava.schoolaccounting.room.RoomView
-            android:id="@+id/room011"
-            custom:roomName="011"
+            android:id="@+id/room111"
+            custom:roomName="111"
             android:layout_width="wrap_content"
             android:layout_height="0px"
             android:layout_weight="1"
             android:layout_marginBottom="@dimen/activity_divider_padding"
             />
         <de.slava.schoolaccounting.room.RoomView
-            android:id="@+id/roomUnknown"
-            custom:roomName="\?\?\?"
+            android:id="@+id/roomMB"
+            custom:roomName="MB"
             android:layout_width="wrap_content"
             android:layout_height="0px"
             android:layout_weight="1" />

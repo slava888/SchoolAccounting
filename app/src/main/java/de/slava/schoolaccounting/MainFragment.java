@@ -24,8 +24,8 @@ import de.slava.schoolaccounting.room.RoomView;
 public class MainFragment extends Fragment {
 
     @Bind(R.id.roomHome) RoomView roomHome;
-    @Bind(R.id.room011) RoomView room011;
-    @Bind(R.id.roomUnknown) RoomView roomUnknown;
+    @Bind(R.id.room111) RoomView room111;
+    @Bind(R.id.roomMB) RoomView roomMB;
     @Bind(R.id.room017) RoomView room017;
     @Bind(R.id.room018) RoomView room018;
     @Bind(R.id.roomTH) RoomView roomTH;
@@ -47,13 +47,13 @@ public class MainFragment extends Fragment {
         if (roomHome == null)
             return;
         Map<String, RoomView> room2View = new HashMap<>();
-        room2View.put("Home", roomHome);
-        room2View.put("?", roomUnknown);
-        room2View.put("011", room011);
-        room2View.put("017", room017);
-        room2View.put("018", room018);
-        room2View.put("TH", roomTH);
-        room2View.put("Hof", roomHof);
+        room2View.put(getContext().getString(Room.Name.ROOM_HOME.getRoomResourceKey()), roomHome);
+        room2View.put(getContext().getString(Room.Name.ROOM_MITTAGSBETREUUNG.getRoomResourceKey()), roomMB);
+        room2View.put(getContext().getString(Room.Name.ROOM_111.getRoomResourceKey()), room111);
+        room2View.put(getContext().getString(Room.Name.ROOM_017.getRoomResourceKey()), room017);
+        room2View.put(getContext().getString(Room.Name.ROOM_018.getRoomResourceKey()), room018);
+        room2View.put(getContext().getString(Room.Name.ROOM_TURNHALLE.getRoomResourceKey()), roomTH);
+        room2View.put(getContext().getString(Room.Name.ROOM_HOF.getRoomResourceKey()), roomHof);
         List<Room> rooms = getDb().getDao(RoomDao.class).getAll(null, null, null);
         for (Room room : rooms) {
             String id = room.getName();

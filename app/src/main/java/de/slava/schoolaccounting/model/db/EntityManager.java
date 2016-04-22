@@ -25,6 +25,7 @@ public class EntityManager extends SQLiteOpenHelper {
         }
     };
     private final static DBDaoKey daoKey = new DBDaoKey();
+    private final Context context;
     private Map<Class<?>, Object> daoCache = new HashMap<>();
 
     public static final int DATABASE_VERSION = 2;
@@ -62,6 +63,7 @@ public class EntityManager extends SQLiteOpenHelper {
 
     private EntityManager(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        this.context = context;
         db = getWritableDatabase();
     }
 
@@ -77,6 +79,10 @@ public class EntityManager extends SQLiteOpenHelper {
     private SQLiteDatabase db;
     SQLiteDatabase getDb() {
         return db;
+    }
+
+    public Context getContext() {
+        return context;
     }
 
     @Override
@@ -121,8 +127,8 @@ public class EntityManager extends SQLiteOpenHelper {
 
     private void populateRooms() {
         RoomDao dao = getDao(RoomDao.class);
-        for (String roomName : new String[]{"Home", "?", "011", "017", "018", "TH", "Hof"}) {
-            Room room = dao.add(new Room(null, roomName, roomName.equals("?"), roomName.equals("Home")));
+        for (Room.Name roomName : Room.Name.values()) {
+            Room room = dao.add(new Room(null, getContext().getString(roomName.getRoomResourceKey()), roomName == Room.Name.ROOM_MITTAGSBETREUUNG, roomName == Room.Name.ROOM_HOME));
             // Log.d(Main.getTag(), String.format("Created room %s", room));
         }
         Log.d(Main.getTag(), String.format("All rooms: %s", dao.getAll(null, null, null)));
