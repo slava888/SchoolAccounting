@@ -11,5 +11,6 @@
         android:id="@+id/menuDebugDB"
         android:orderInCategory="101"
         android:title="@string/menu_debug_db"
+        android:visible="false"
         app:showAsAction="never" />
 </menu>

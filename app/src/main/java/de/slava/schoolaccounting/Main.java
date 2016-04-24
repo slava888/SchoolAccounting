@@ -15,12 +15,15 @@ import com.sanathp.AndroidDatabaseManager;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 import butterknife.ButterKnife;
 import de.slava.schoolaccounting.journal.JournalActivity;
 import de.slava.schoolaccounting.model.AppOption;
 import de.slava.schoolaccounting.model.Room;
+import de.slava.schoolaccounting.model.UserEnvironment;
 import de.slava.schoolaccounting.model.db.ChildDao;
 import de.slava.schoolaccounting.model.db.EntityManager;
 import de.slava.schoolaccounting.model.db.OptionsDao;
@@ -28,11 +31,26 @@ import de.slava.schoolaccounting.model.db.RoomDao;
 import de.slava.schoolaccounting.room.IRoomSelectionListener;
 import de.slava.schoolaccounting.room.RoomFragment;
 import de.slava.schoolaccounting.util.DateUtils;
+import de.slava.schoolaccounting.util.SeqWatcher;
 
 public class Main extends AppCompatActivity implements IRoomSelectionListener {
 
     private final static String TAG = "ScAcc";
     private static volatile Context appContext;
+
+    private AccessRight accAdv = AccessRight.USER;
+    private SeqWatcher<Room.Name> advUserUnlocker = new SeqWatcher<>(
+            new Room.Name[] {Room.Name.ROOM_TURNHALLE, Room.Name.ROOM_017, Room.Name.ROOM_HOF, Room.Name.ROOM_HOME}
+            , (i) -> accAdv = AccessRight.USER, null, () -> accAdv = AccessRight.ADMIN
+    );
+    private AccessRight accDev = AccessRight.USER;
+    private SeqWatcher<Room.Name> devUnlocker = new SeqWatcher<>(
+            new Room.Name[] {Room.Name.ROOM_HOME, Room.Name.ROOM_111, Room.Name.ROOM_MITTAGSBETREUUNG, Room.Name.ROOM_018, Room.Name.ROOM_TURNHALLE, Room.Name.ROOM_HOF}
+            , (i) -> accAdv = AccessRight.USER, null, () -> accAdv = AccessRight.DEV
+    );
+    private Map<String, Room.Name> roomText2Enum;
+
+    private Menu mainMenu;
 
     /**
      * Returns the tag for logging, which contains the calling class:line
@@ -60,8 +78,15 @@ public class Main extends AppCompatActivity implements IRoomSelectionListener {
 
         MainFragment main = (MainFragment)getSupportFragmentManager().findFragmentById(R.id.fragmentMain);
 
+        roomText2Enum = new HashMap<>();
+        for (Room.Name roomNameEnum : Room.Name.values()) {
+            roomText2Enum.put(getString(roomNameEnum.getRoomResourceKey()), roomNameEnum);
+        }
+
         onStartRestoreLastStatus();
         onStartCheckMoveChildrenInInitialRoom();
+
+        initUserAccessListeners();
 
 //        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
 //        fab.setOnClickListener(new View.OnClickListener() {
@@ -78,6 +103,7 @@ public class Main extends AppCompatActivity implements IRoomSelectionListener {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
+        mainMenu = menu;
         return true;
     }
 
@@ -86,20 +112,31 @@ public class Main extends AppCompatActivity implements IRoomSelectionListener {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
+        updateSeq(null);
         switch (item.getItemId()) {
             case R.id.menuJournal:
                 return openJournal();
             case R.id.menuDebugDB:
                 return openDebugDB();
         }
-
         return super.onOptionsItemSelected(item);
     }
 
     @Override
     public void onRoomSelected(Room room) {
-        Log.d(Main.getTag(), String.format("Selected room %s", room));
         selectRoom(room, false);
+        updateSeq(room.getName());
+    }
+
+    private void updateSeq(String roomName) {
+        Room.Name roomEnum = roomText2Enum != null && roomName != null ? roomText2Enum.get(roomName) : null;
+        advUserUnlocker.update(roomEnum);
+        devUnlocker.update(roomEnum);
+        AccessRight highest = AccessRight.highestOf(accAdv, accDev);
+        UserEnvironment ue = UserEnvironment.instance();
+        if (ue.getAccessRight() != highest) {
+            ue.setAccessRight(highest);
+        }
     }
 
     private void selectRoom(Room room, boolean justStarting) {
@@ -109,7 +146,7 @@ public class Main extends AppCompatActivity implements IRoomSelectionListener {
             fragment.dataInit(room);
             if (!justStarting) {
                 // save last selected room in options
-                Log.d(Main.getTag(), String.format("Save last selected room: %s", room.getId()));
+                // Log.d(Main.getTag(), String.format("Save last selected room: %s", room.getId()));
                 getDb().getDao(OptionsDao.class).setOption(AppOption.LAST_VIEWED_ROOM, room.getId());
             }
         } else {
@@ -123,6 +160,18 @@ public class Main extends AppCompatActivity implements IRoomSelectionListener {
                         .commit();
             }
         }
+    }
+
+    private void initUserAccessListeners() {
+        UserEnvironment.instance().addChangeListener((change) -> {
+            if (UserEnvironment.PROPERTY_ACCESS_RIGHT.equals(change.getPropertyName())) {
+                Log.d(Main.getTag(), String.format("User access changes from %s to %s", change.getOldValue(), change.getNewValue()));
+                MenuItem debugDbMenuItem = mainMenu.findItem(R.id.menuDebugDB);
+                if (debugDbMenuItem != null) {
+                    debugDbMenuItem.setVisible(UserEnvironment.instance().getAccessRight().higherOrEqualsThan(AccessRight.DEV));
+                }
+            }
+        });
     }
 
     private EntityManager getDb() {

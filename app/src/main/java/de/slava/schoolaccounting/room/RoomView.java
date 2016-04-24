@@ -127,7 +127,7 @@ public class RoomView extends RelativeLayout {
     }
 
     private void onClick(View view) {
-        Log.d(Main.getTag(), String.format("Clicked on %s", view));
+        // Log.d(Main.getTag(), String.format("Clicked on %s", view));
         if (getContext() instanceof IRoomSelectionListener) {
             ((IRoomSelectionListener)getContext()).onRoomSelected(roomModel);
         }

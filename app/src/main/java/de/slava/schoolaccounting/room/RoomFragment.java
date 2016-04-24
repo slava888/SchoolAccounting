@@ -62,7 +62,7 @@ public class RoomFragment extends Fragment {
     }
 
     private void onRoomChanges(PropertyChangeEvent event) {
-        Log.d(Main.getTag(), String.format("Room %s changes to %s", roomModel.getName(), roomModel));
+        // Log.d(Main.getTag(), String.format("Room %s changes to %s", roomModel.getName(), roomModel));
         syncModelWithUI();
     }
 
