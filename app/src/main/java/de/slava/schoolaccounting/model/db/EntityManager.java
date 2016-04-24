@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 import de.slava.schoolaccounting.Main;
+import de.slava.schoolaccounting.model.Category;
 import de.slava.schoolaccounting.model.Child;
 import de.slava.schoolaccounting.model.Room;
 import de.slava.schoolaccounting.model.SchoolModel;
@@ -32,11 +33,22 @@ public class EntityManager extends SQLiteOpenHelper {
     private final Context context;
     private Map<Class<?>, Object> daoCache = new HashMap<>();
 
-    public static final int DATABASE_VERSION = 2;
+    public static final int DATABASE_VERSION = 1;
     public static final String DATABASE_NAME = "SchoolAccounting";
     public static final String DATABASE_TABLE_ROOM = "ROOM";
     public static final String DATABASE_TABLE_CHILD = "CHILD";
     public static final String DATABASE_TABLE_JOURNAL = "JOURNAL";
+
+    private static final String SQL_CREATE_IMAGES = "create table " + ImageDao.TABLE_NAME + " (" +
+            "   " + BaseRawDao.COLUMN_ID + " INTEGER NOT NULL PRIMARY KEY ASC AUTOINCREMENT" +
+            " , " + ImageDao.COLUMN_SID + " TEXT" +
+            " )";
+
+    private static final String SQL_CREATE_CATEGORIES = "create table " + CategoryDao.TABLE_NAME + " (" +
+            "   " + BaseRawDao.COLUMN_ID + " INTEGER NOT NULL PRIMARY KEY ASC AUTOINCREMENT" +
+            " , " + CategoryDao.COLUMN_NAME + " TEXT NOT NULL UNIQUE" +
+            " , " + CategoryDao.COLUMN_IMAGE_FK + " INTEGER NOT NULL REFERENCES " + ImageDao.TABLE_NAME + " (ID)" +
+            " )";
 
     private static final String SQL_CREATE_ROOMS = "create table " + DATABASE_TABLE_ROOM + " ( " +
             "   " + BaseRawDao.COLUMN_ID + " INTEGER NOT NULL PRIMARY KEY ASC AUTOINCREMENT" +
@@ -49,7 +61,8 @@ public class EntityManager extends SQLiteOpenHelper {
             "   " + BaseRawDao.COLUMN_ID + " INTEGER NOT NULL PRIMARY KEY ASC AUTOINCREMENT" +
             " , " + ChildDao.COLUMN_NAME + " TEXT NOT NULL UNIQUE" +
             " , " + ChildDao.COLUMN_ROOM_FK + " INTEGER NOT NULL REFERENCES " + DATABASE_TABLE_ROOM + " (ID)" +
-            " , " + ChildDao.COLUMN_IMAGE_FK + " INTEGER" + // TODO FK here
+            " , " + ChildDao.COLUMN_IMAGE_FK + " INTEGER NOT NULL REFERENCES " + ImageDao.TABLE_NAME + " (ID)" +
+            " , " + ChildDao.COLUMN_CATEGORY_FK + " INTEGER NOT NULL REFERENCES " + CategoryDao.TABLE_NAME + " (ID)" +
             " )";
 
     private static final String SQL_CREATE_JOURNAL = "create table " + DATABASE_TABLE_JOURNAL + " ( " +
@@ -92,21 +105,22 @@ public class EntityManager extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         this.db = db;
+        db.execSQL(SQL_CREATE_IMAGES);
         db.execSQL(SQL_CREATE_ROOMS);
+        db.execSQL(SQL_CREATE_CATEGORIES);
         db.execSQL(SQL_CREATE_CHILDREN);
         db.execSQL(SQL_CREATE_JOURNAL);
         db.execSQL(SQL_CREATE_OPTIONS);
-        populateRooms();
-        populateChildren();
+        new DBPopulator(this, 0, DATABASE_VERSION);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        // should not yet be used
         this.db = db;
         switch(oldVersion) {
-            case 1:
-                db.execSQL(SQL_CREATE_OPTIONS);
         }
+        new DBPopulator(this, oldVersion, newVersion);
     }
 
     public <T> T getDao(Class<T> daoClass) {
@@ -120,6 +134,10 @@ public class EntityManager extends SQLiteOpenHelper {
                 dao = new JournalDao(this, daoKey);
             else if (daoClass == OptionsDao.class)
                 dao = new OptionsDao(this, daoKey);
+            else if (daoClass == ImageDao.class)
+                dao = new ImageDao(this, daoKey);
+            else if (daoClass == CategoryDao.class)
+                dao = new CategoryDao(this, daoKey);
             else {
                 assert false : "Unknown DAO requested";
                 return null;
@@ -127,138 +145,6 @@ public class EntityManager extends SQLiteOpenHelper {
             daoCache.put(daoClass, dao);
         }
         return (T)dao;
-    }
-
-    private void populateRooms() {
-        RoomDao dao = getDao(RoomDao.class);
-        for (Room.Name roomName : Room.Name.values()) {
-            Room room = dao.add(new Room(null, getContext().getString(roomName.getRoomResourceKey()), roomName == Room.Name.ROOM_MITTAGSBETREUUNG, roomName == Room.Name.ROOM_HOME));
-            // Log.d(Main.getTag(), String.format("Created room %s", room));
-        }
-        Log.d(Main.getTag(), String.format("All rooms: %s", dao.getAll(null, null, null)));
-    }
-
-    private void populateChildren() {
-        Room initial = ensureInitialRoomExists();
-        ChildDao dao = getDao(ChildDao.class);
-        dao.add(new Child(null, "Slava", initial, 1));
-        dao.add(new Child(null, "Marina", initial, 4));
-        dao.add(new Child(null, "Stefan", initial, 2));
-        dao.add(new Child(null, "Sebastian", initial, 2));
-        dao.add(new Child(null, "Maja", initial, 3));
-        dao.add(new Child(null, "Rocco", initial, 2));
-        dao.add(new Child(null, "Julian", initial, 2));
-        dao.add(new Child(null, "Carlos", initial, 2));
-        dao.add(new Child(null, "Benedikt", initial, 2));
-        dao.add(new Child(null, "Marko", initial, 2));
-        dao.add(new Child(null, "Ira", initial, 3));
-        dao.add(new Child(null, "Valentin", initial, 2));
-        dao.add(new Child(null, "Iva", initial, 3));
-        dao.add(new Child(null, "Miku", initial, 3));
-        dao.add(new Child(null, "Misu", initial, 3));
-        dao.add(new Child(null, "Milad", initial, 2));
-        dao.add(new Child(null, "Aikan", initial, 2));
-        dao.add(new Child(null, "Akan", initial, 2));
-        dao.add(new Child(null, "Ilaidanur", initial, 3));
-        dao.add(new Child(null, "Mila", initial, 3));
-        dao.add(new Child(null, "Maria", initial, 3));
-        dao.add(new Child(null, "Aikan", initial, 2));
-
-        String players[] = {
-                "Timo Achenbach",
-                "Benjamin Auer",
-                "Roland Benschneider",
-                "Daniel Bierofka",
-                "Philipp Bönig",
-                "Pascal Borel",
-                "Tim Borowski",
-                "Thomas Broich",
-                "Daniyel Cimen",
-                "Simon Cziommer",
-                "Christoph Dabrowski",
-                "Markus Daun",
-                "Mustafa Doğan",
-                "Marco Engelhardt",
-                "Robert Enke",
-                "Fabian Ernst",
-                "Frank Fahrenhorst",
-                "Maik Franz",
-                "Arne Friedrich",
-                "Manuel Friedrich",
-                "Clemens Fritz",
-                "Nico Frommer",
-                "Christian Gentner",
-                "Fabian Gerber",
-                "Mario Gómez",
-                "Mike Hanke",
-                "Patrick Helmes",
-                "Ingo Hertzsch",
-                "Timo Hildebrand",
-                "Andreas Hinkel",
-                "Steffen Hofmann",
-                "Alexander Huber",
-                "Simon Jentzsch",
-                "Jermaine Jones",
-                "Enrico Kern",
-                "Stefan Kießling",
-                "Thomas Kleine",
-                "Stephan Kling",
-                "Peer Kluge",
-                "Bernd Korzynietz",
-                "Markus Kreuz",
-                "Florian Kringe",
-                "Emmanuel Krontiris",
-                "Kevin Kurányi",
-                "Matthias Langkamp",
-                "Benjamin Lense",
-                "Alexander Madlung",
-                "Marcel Maltritz",
-                "Thorben Marx",
-                "Martin Meichelbeck",
-                "Alexander Meier",
-                "Alexander Meyer",
-                "Uwe Möhrle",
-                "Sven Müller",
-                "Andreas Ottl",
-                "Christoph Preuß",
-                "Tobias Rau",
-                "Simon Rolfes",
-                "Sascha Rösler",
-                "Marcel Schäfer",
-                "Sebastian Schindzielorz",
-                "Björn Schlicke",
-                "Silvio Schröter",
-                "Markus Schroth",
-                "Martin Stoll",
-                "Albert Streit",
-                "Christian Timm",
-                "Alexander Voigt",
-                "Andreas Voss",
-                "Roman Weidenfeller",
-                "Benjamin Weigelt",
-                "Timo Wenzel",
-                "Stefan Wessels"
-        };
-        for (String player : players) {
-            dao.add(new Child(null, player, initial, 5));
-        }
-
-        Log.d(Main.getTag(), String.format("All children: %s", dao.getAll(null, null, null)));
-    }
-
-    private Room ensureInitialRoomExists() {
-        RoomDao dao = getDao(RoomDao.class);
-        List<Room> defauls = dao.getAll("INITIAL = 1", null, null);
-        if (defauls.isEmpty()) {
-            Log.w(Main.getTag(), "No initial room defined, mark first as one");
-            defauls = dao.getAll(null, null, null);
-            assert !defauls.isEmpty() : "No rooms?!?";
-            Room def = defauls.iterator().next();
-            def.setInitial(true);
-            def = dao.update(def);
-            return def;
-        }
-        return defauls.iterator().next();
     }
 
     public ArrayList<Cursor> getDataForADBM(String Query) {

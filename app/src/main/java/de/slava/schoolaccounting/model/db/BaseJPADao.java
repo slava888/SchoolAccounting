@@ -28,10 +28,10 @@ public abstract class BaseJPADao<Entity extends BasicEntity> extends BaseRawDao 
      * Converts an entity to ContentValues.
      * Must be impleented by descendants.
      *
-     * @param room
+     * @param entity
      * @return
      */
-    abstract protected ContentValues asCV(Entity room);
+    abstract protected ContentValues asCV(Entity entity);
 
     /**
      * Add new entity to a database

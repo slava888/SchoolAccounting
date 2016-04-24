@@ -13,6 +13,7 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import de.slava.schoolaccounting.Main;
 import de.slava.schoolaccounting.R;
+import de.slava.schoolaccounting.model.Image;
 import de.slava.schoolaccounting.model.JournalEntry;
 import de.slava.schoolaccounting.room.RoomChildItem;
 import de.slava.schoolaccounting.util.DateUtils;
@@ -47,7 +48,7 @@ public class JournalEntryItemView extends LinearLayout {
         if (data == null || textName == null)
             return;
         textName.setText(data.getChild().getNameFull());
-        imageView.setImageDrawable(RoomChildItem.getChildImage(getContext(), data.getChild().getImageId()));
+        imageView.setImageDrawable(RoomChildItem.getChildImage(getContext(), data.getChild().getImage()));
         textTime.setText(DateUtils.dateTimeToString(data.getTimestamp()));
     }
 

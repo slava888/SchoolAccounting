@@ -31,6 +31,7 @@ import de.slava.schoolaccounting.Main;
 import de.slava.schoolaccounting.R;
 import de.slava.schoolaccounting.dnd.DNDObject;
 import de.slava.schoolaccounting.model.Child;
+import de.slava.schoolaccounting.model.Image;
 import de.slava.schoolaccounting.model.Room;
 import de.slava.schoolaccounting.model.db.EntityManager;
 import de.slava.schoolaccounting.model.db.RoomDao;
@@ -86,19 +87,13 @@ public class RoomChildItem extends LinearLayout {
         if (textName == null || child == null)
             return;
         textName.setText(child.getNameFull());
-        imageView.setImageDrawable(getChildImage(getContext(), child.getImageId()));
+        imageView.setImageDrawable(getChildImage(getContext(), child.getImage()));
     }
 
-    public static Drawable getChildImage(Context context, Integer imageId) {
-        int resId = R.drawable.person_1;
-        if (imageId == 2)
-            resId = R.drawable.person_2;
-        else if (imageId == 3)
-            resId = R.drawable.person_3;
-        if (imageId == 4)
-            resId = R.drawable.person_4;
-        if (imageId == 5)
-            resId = R.drawable.person_5;
+    public static Drawable getChildImage(Context context, Image image) {
+        if (image == null)
+            return null;
+        int resId = image.getSid().getResourceId();
         return ContextCompat.getDrawable(context, resId);
     }
 

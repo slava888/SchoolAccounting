@@ -10,7 +10,9 @@ import java.util.List;
 
 import de.slava.schoolaccounting.Main;
 import de.slava.schoolaccounting.R;
+import de.slava.schoolaccounting.model.Category;
 import de.slava.schoolaccounting.model.Child;
+import de.slava.schoolaccounting.model.Image;
 import de.slava.schoolaccounting.model.Room;
 
 /**
@@ -20,6 +22,7 @@ public class ChildDao extends BaseJPADao<Child> {
     public final static String COLUMN_NAME = "NAME";
     public final static String COLUMN_ROOM_FK = "ROOM_FK";
     public final static String COLUMN_IMAGE_FK = "IMAGE_FK";
+    public final static String COLUMN_CATEGORY_FK = "CATEGORY_FK";
 
     protected ChildDao(EntityManager entityManager, EntityManager.DBDaoKey key) {
         super(entityManager, key);
@@ -31,17 +34,18 @@ public class ChildDao extends BaseJPADao<Child> {
     }
 
     @Override
-    protected ContentValues asCV(Child room) {
+    protected ContentValues asCV(Child entity) {
         ContentValues ret = new ContentValues();
-        ret.put(COLUMN_ID, room.getId());
-        ret.put(COLUMN_NAME, room.getNameFull());
-        ret.put(COLUMN_ROOM_FK, room.getRoom() != null ? room.getRoom().getId() : null);
-        ret.put(COLUMN_IMAGE_FK, room.getImageId());
+        ret.put(COLUMN_ID, entity.getId());
+        ret.put(COLUMN_NAME, entity.getNameFull());
+        ret.put(COLUMN_ROOM_FK, entity.getRoom() != null ? entity.getRoom().getId() : null);
+        ret.put(COLUMN_IMAGE_FK, entity.getImage() != null ? entity.getImage().getId() : null);
+        ret.put(COLUMN_CATEGORY_FK, entity.getCategory() != null ? entity.getCategory().getId() : null);
         return ret;
     }
 
     private final static String[] columns = {
-        COLUMN_ID, COLUMN_NAME, COLUMN_ROOM_FK, COLUMN_IMAGE_FK
+        COLUMN_ID, COLUMN_NAME, COLUMN_ROOM_FK, COLUMN_IMAGE_FK, COLUMN_CATEGORY_FK
     };
 
     @Override
@@ -56,11 +60,19 @@ public class ChildDao extends BaseJPADao<Child> {
         Integer roomFk = cursor.getInt(cursor.getColumnIndex(COLUMN_ROOM_FK)); // TODO: lazy loading? Maybe I should have used hibernate after all...
         Room room = null;
         if (roomFk != null) {
-            RoomDao roomDao = getEntityManager().getDao(RoomDao.class);
-            room = roomDao.getById(roomFk);
+            room = getDao(RoomDao.class).getById(roomFk);
         }
         Integer imageFk = cursor.getInt(cursor.getColumnIndex(COLUMN_IMAGE_FK));
-        return new Child(id, name, room, imageFk);
+        Image image = null;
+        if (imageFk != null) {
+            image = getDao(ImageDao.class).getById(imageFk);
+        }
+        Integer categoryFk = cursor.getInt(cursor.getColumnIndex(COLUMN_CATEGORY_FK));
+        Category category = null;
+        if (categoryFk != null) {
+            category = getDao(CategoryDao.class).getById(categoryFk);
+        }
+        return new Child(id, name, room, image, category);
 
     }
 
@@ -69,7 +81,8 @@ public class ChildDao extends BaseJPADao<Child> {
         assert target.getId() == source.getId();
         target.setNameFull(source.getNameFull());
         target.setRoom(source.getRoom());
-        target.setImageId(source.getImageId());
+        target.setImage(source.getImage());
+        target.setCategory(source.getCategory());
     }
 
     public void moveEveryoneToInitialRoom() {

@@ -8,19 +8,26 @@ import lombok.experimental.Accessors;
  */
 @Accessors(chain=true)
 public class Child extends BasicEntity {
+    public final static String PROPERTY_NAME_FULL = "nameFull";
+    public final static String PROPERTY_ROOM = "room";
+    public final static String PROPERTY_IMAGE = "image";
+    public final static String PROPERTY_CATEGORY = "category";
+
     private String nameFull;
     private Room room;
-    private Integer imageId;
+    private Image image;
+    private Category category;
 
     public Child() { this(null, null); }
 
-    public Child(Integer id, String name) { this(id, name, null, null); }
+    public Child(Integer id, String name) { this(id, name, null, null, null); }
 
-    public Child(Integer id, String name, Room room, Integer imageId) {
+    public Child(Integer id, String name, Room room, Image image, Category category) {
         super(id);
         setNameFull(name);
         setRoom(room);
-        setImageId(imageId);
+        setImage(image);
+        setCategory(category);
     }
 
     /**
@@ -34,7 +41,7 @@ public class Child extends BasicEntity {
         this.room = newRoom;
         if (room != null)
             room.addChild(this);
-        super.firePropertyChange("room", oldRoom, newRoom);
+        super.firePropertyChange(PROPERTY_ROOM, oldRoom, newRoom);
         if (getPersistingDao() != null)
             getPersistingDao().update(this);
     }
@@ -46,7 +53,7 @@ public class Child extends BasicEntity {
     public void setNameFull(String nameFull) {
         String oldValue = this.nameFull;
         this.nameFull = nameFull;
-        super.firePropertyChange("nameFull", oldValue, nameFull);
+        super.firePropertyChange(PROPERTY_NAME_FULL, oldValue, nameFull);
     }
 
     public Room getRoom() {
@@ -56,17 +63,27 @@ public class Child extends BasicEntity {
     public void setRoom(Room room) {
         Room oldValue = this.room;
         this.room = room;
-        super.firePropertyChange("room", oldValue, room);
+        super.firePropertyChange(PROPERTY_ROOM, oldValue, room);
     }
 
-    public Integer getImageId() {
-        return imageId;
+    public Image getImage() {
+        return image;
     }
 
-    public void setImageId(Integer imageId) {
-        Integer oldValue = this.imageId;
-        this.imageId = imageId;
-        super.firePropertyChange("imageId", oldValue, imageId);
+    public void setImage(Image image) {
+        Image oldValue = this.image;
+        this.image = image;
+        super.firePropertyChange(PROPERTY_IMAGE, oldValue, image);
+    }
+
+    public Category getCategory() {
+        return category;
+    }
+
+    public void setCategory(Category category) {
+        Category oldValue = this.category;
+        this.category = category;
+        super.firePropertyChange(PROPERTY_CATEGORY, oldValue, category);
     }
 
     @Override
