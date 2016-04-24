@@ -1,8 +1,15 @@
 package de.slava.schoolaccounting.model.db;
 
+import android.app.Application;
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.util.Log;
+import android.widget.Toast;
 
+import java.util.List;
+
+import de.slava.schoolaccounting.Main;
+import de.slava.schoolaccounting.R;
 import de.slava.schoolaccounting.model.Child;
 import de.slava.schoolaccounting.model.Room;
 
@@ -63,5 +70,19 @@ public class ChildDao extends BaseJPADao<Child> {
         target.setNameFull(source.getNameFull());
         target.setRoom(source.getRoom());
         target.setImageId(source.getImageId());
+    }
+
+    public void moveEveryoneToInitialRoom() {
+        List<Room> initialRooms = getDao(RoomDao.class).getAll("INITIAL = 1", null, null);
+        if (initialRooms == null || initialRooms.isEmpty()) {
+            Main.toast(R.string.childdao_error_noinitialroom);
+            return;
+        }
+        Room initialRoom = initialRooms.get(0);
+        List<Child> all = getAll(String.format("%s != ?", COLUMN_ROOM_FK), new String[] {initialRoom.getId().toString()}, null);
+        for (Child child : all) {
+            child.moveToToom(initialRoom);
+        }
+        Main.toast(R.string.childdao_all_children_moved_to_initial, initialRoom.getName());
     }
 }

@@ -26,6 +26,8 @@
             android:label="@string/title_activity_journal"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
+        <activity android:name="com.sanathp.AndroidDatabaseManager"
+                  android:theme="@style/Theme.AppCompat.Light"/>
     </application>
 
 </manifest>

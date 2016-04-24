@@ -7,6 +7,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.Objects;
 
 import de.slava.schoolaccounting.functional.Consumer;
 
@@ -145,5 +146,16 @@ public class DateUtils {
         if (date != null)
             ret.setTime(date);
         return ret;
+    }
+
+    /**
+     * Returns true if the date refers to the same day
+     *
+     * @param one
+     * @param two
+     * @return
+     */
+    public static boolean isSameDay(Date one, Date two) {
+        return dfDate.format(one).equals(dfDate.format(two));
     }
 }

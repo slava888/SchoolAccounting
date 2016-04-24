@@ -1,5 +1,6 @@
 package de.slava.schoolaccounting;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -7,20 +8,31 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
+
+import com.sanathp.AndroidDatabaseManager;
+
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.Objects;
 
 import butterknife.ButterKnife;
 import de.slava.schoolaccounting.journal.JournalActivity;
 import de.slava.schoolaccounting.model.AppOption;
 import de.slava.schoolaccounting.model.Room;
+import de.slava.schoolaccounting.model.db.ChildDao;
 import de.slava.schoolaccounting.model.db.EntityManager;
 import de.slava.schoolaccounting.model.db.OptionsDao;
 import de.slava.schoolaccounting.model.db.RoomDao;
 import de.slava.schoolaccounting.room.IRoomSelectionListener;
 import de.slava.schoolaccounting.room.RoomFragment;
+import de.slava.schoolaccounting.util.DateUtils;
 
 public class Main extends AppCompatActivity implements IRoomSelectionListener {
 
     private final static String TAG = "ScAcc";
+    private static volatile Context appContext;
 
     /**
      * Returns the tag for logging, which contains the calling class:line
@@ -40,6 +52,7 @@ public class Main extends AppCompatActivity implements IRoomSelectionListener {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        appContext = getApplicationContext();
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -47,14 +60,8 @@ public class Main extends AppCompatActivity implements IRoomSelectionListener {
 
         MainFragment main = (MainFragment)getSupportFragmentManager().findFragmentById(R.id.fragmentMain);
 
-        Integer lastSelectedRoom = getDb().getDao(OptionsDao.class).getOption(AppOption.LAST_VIEWED_ROOM, Integer.class);
-        Log.d(Main.getTag(), String.format("TODO: restore last selected room: %s", lastSelectedRoom));
-        if (lastSelectedRoom != null) {
-            Room room = getDb().getDao(RoomDao.class).getById(lastSelectedRoom);
-            if (room != null) {
-                selectRoom(room, true);
-            }
-        }
+        onStartRestoreLastStatus();
+        onStartCheckMoveChildrenInInitialRoom();
 
 //        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
 //        fab.setOnClickListener(new View.OnClickListener() {
@@ -82,6 +89,8 @@ public class Main extends AppCompatActivity implements IRoomSelectionListener {
         switch (item.getItemId()) {
             case R.id.menuJournal:
                 return openJournal();
+            case R.id.menuDebugDB:
+                return openDebugDB();
         }
 
         return super.onOptionsItemSelected(item);
@@ -124,5 +133,56 @@ public class Main extends AppCompatActivity implements IRoomSelectionListener {
         Intent intent = new Intent(this, JournalActivity.class);
         startActivity(intent);
         return true;
+    }
+
+    private boolean openDebugDB() {
+        Intent intent = new Intent(this, AndroidDatabaseManager.class);
+        startActivity(intent);
+        return true;
+    }
+
+    /**
+     * Restores the UI state from the last start, if makes sense
+     */
+    private void onStartRestoreLastStatus() {
+        Integer lastSelectedRoom = getDb().getDao(OptionsDao.class).getOption(AppOption.LAST_VIEWED_ROOM, Integer.class);
+        // Log.d(Main.getTag(), String.format("Restore last selected room: %s", lastSelectedRoom));
+        if (lastSelectedRoom != null) {
+            Room room = getDb().getDao(RoomDao.class).getById(lastSelectedRoom);
+            if (room != null) {
+                selectRoom(room, true);
+            }
+        }
+    }
+
+    /**
+     * Checks if started on another day -> then move all children into initial room
+     */
+    private void onStartCheckMoveChildrenInInitialRoom() {
+        OptionsDao odao = getDb().getDao(OptionsDao.class);
+        final Date lastStarted = odao.getOption(AppOption.LAST_DAY_RESET, Date.class);
+        Date now = GregorianCalendar.getInstance().getTime();
+        if (lastStarted != null) {
+            if (!DateUtils.isSameDay(lastStarted, now)) {
+                getDb().getDao(ChildDao.class).moveEveryoneToInitialRoom();
+            }
+        }
+        // save now
+        odao.setOption(AppOption.LAST_DAY_RESET, now);
+    }
+
+    /**
+     * Allows to display toast (short-living notification message)
+     * @param resourceId
+     * @param params
+     */
+    public static void toast(int resourceId, Object... params) {
+        if (appContext == null) {
+            Log.w(Main.getTag(), "Attempt to display a toast before main app is initialized");
+            return;
+        }
+        String message = appContext.getString(resourceId, params);
+        Log.i(Main.getTag(), message);
+        Toast.makeText(appContext, message, Toast.LENGTH_LONG).show();
     }
 }

@@ -1,10 +1,10 @@
 <resources>
     <string name="app_name">Schüler Buchhaltung</string>
     <string name="menu_journal">Protokoll</string>
+    <string name="menu_debug_db">Datenbank-browser</string>
     <string name="title_activity_journal">Protokoll-Ansicht</string>
     <string name="protocol.export.error">Fehler beim Schreiben in %s</string>
     <string name="protocol.export.success">Auszug wurde erfolgreich exportiert:\n%s</string>
-
     <string name="room.home">Home</string>
     <string name="room.mb">M/B</string>
     <string name="room.111">111</string>
@@ -12,7 +12,7 @@
     <string name="room.018">018</string>
     <string name="room.TH">Turnhalle</string>
     <string name="room.Hof">Hof</string>
-
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="childdao.all_children_moved_to_initial">Alle Kinder sind in Raum %s initial platziert</string>
+    <string name="childdao.error.noinitialroom">Kein Raum in DB ist als initial markiert</string>
 </resources>
