@@ -3,4 +3,7 @@
         <attr name="roomName" format="string" />
         <attr name="roomStyle" format="reference"/>
     </declare-styleable>
+    <declare-styleable name="FilterWidget">
+        <attr name="filterWidgetStyle" format="reference"/>
+    </declare-styleable>
 </resources>

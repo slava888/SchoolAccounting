@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import butterknife.ButterKnife;
+import de.slava.schoolaccounting.filter.FilterWidget;
 import de.slava.schoolaccounting.journal.JournalActivity;
 import de.slava.schoolaccounting.model.AppOption;
 import de.slava.schoolaccounting.model.Room;
@@ -75,6 +76,7 @@ public class Main extends AppCompatActivity implements IRoomSelectionListener {
         ButterKnife.bind(this);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
 
         MainFragment main = (MainFragment)getSupportFragmentManager().findFragmentById(R.id.fragmentMain);
 
@@ -87,6 +89,8 @@ public class Main extends AppCompatActivity implements IRoomSelectionListener {
         onStartCheckMoveChildrenInInitialRoom();
 
         initUserAccessListeners();
+
+        connectToFilter();
 
 //        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
 //        fab.setOnClickListener(new View.OnClickListener() {
@@ -233,5 +237,17 @@ public class Main extends AppCompatActivity implements IRoomSelectionListener {
         String message = appContext.getString(resourceId, params);
         Log.i(Main.getTag(), message);
         Toast.makeText(appContext, message, Toast.LENGTH_LONG).show();
+    }
+
+    private void connectToFilter() {
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        if (toolbar == null) {
+            Log.w(Main.getTag(), "No toolbar in the application?");
+            return;
+        }
+        FilterWidget filterWidget = (FilterWidget)toolbar.findViewById(R.id.filterWidget);
+        filterWidget.addFilterListener((filterModel) -> {
+            Log.d(Main.getTag(), String.format("Filter changes to %s", filterModel));
+        });
     }
 }
