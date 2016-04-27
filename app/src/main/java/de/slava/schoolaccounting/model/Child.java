@@ -1,5 +1,6 @@
 package de.slava.schoolaccounting.model;
 
+import de.slava.schoolaccounting.filter.FilterModel;
 import lombok.ToString;
 import lombok.experimental.Accessors;
 
@@ -91,4 +92,18 @@ public class Child extends BasicEntity {
         return String.format("%s{%d, %s, in %s}", getClass().getSimpleName(), getId(), getNameFull(), getRoom());
     }
 
+    /**
+     * Returns true if the child matches the filter and should be returned.
+     * @param filter
+     * @return
+     */
+    public boolean isMatch(FilterModel filter) {
+        if (filter == null)
+            return true;
+        if (getCategory() != null && !filter.isCategoryActivated(getCategory().getId()))
+            return false;
+        if (getNameFull() != null && filter.isTextActive() && !getNameFull().toLowerCase().contains(filter.getText().toLowerCase()))
+            return false;
+        return true;
+    }
 }

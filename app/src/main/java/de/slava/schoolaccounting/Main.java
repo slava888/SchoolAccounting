@@ -12,13 +12,12 @@ import android.widget.Toast;
 
 import com.sanathp.AndroidDatabaseManager;
 
-import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
 import de.slava.schoolaccounting.filter.FilterWidget;
 import de.slava.schoolaccounting.journal.JournalActivity;
@@ -41,20 +40,24 @@ public class Main extends AppCompatActivity implements IRoomSelectionListener {
 
     private AccessRight accAdv = AccessRight.USER;
     private SeqWatcher<Room.Name> advUserUnlocker = new SeqWatcher<>(
-            new Room.Name[] {Room.Name.ROOM_TURNHALLE, Room.Name.ROOM_017, Room.Name.ROOM_HOF, Room.Name.ROOM_HOME}
+            new Room.Name[]{Room.Name.ROOM_TURNHALLE, Room.Name.ROOM_017, Room.Name.ROOM_HOF, Room.Name.ROOM_HOME}
             , (i) -> accAdv = AccessRight.USER, null, () -> accAdv = AccessRight.ADMIN
     );
     private AccessRight accDev = AccessRight.USER;
     private SeqWatcher<Room.Name> devUnlocker = new SeqWatcher<>(
-            new Room.Name[] {Room.Name.ROOM_HOME, Room.Name.ROOM_111, Room.Name.ROOM_MITTAGSBETREUUNG, Room.Name.ROOM_018, Room.Name.ROOM_TURNHALLE, Room.Name.ROOM_HOF}
+            new Room.Name[]{Room.Name.ROOM_HOME, Room.Name.ROOM_111, Room.Name.ROOM_MITTAGSBETREUUNG, Room.Name.ROOM_018, Room.Name.ROOM_TURNHALLE, Room.Name.ROOM_HOF}
             , (i) -> accAdv = AccessRight.USER, null, () -> accAdv = AccessRight.DEV
     );
     private Map<String, Room.Name> roomText2Enum;
 
     private Menu mainMenu;
 
+    @Bind(R.id.filterWidget)
+    FilterWidget filterWidget;
+
     /**
      * Returns the tag for logging, which contains the calling class:line
+     *
      * @return
      */
     public static String getTag() {
@@ -78,7 +81,12 @@ public class Main extends AppCompatActivity implements IRoomSelectionListener {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
-        MainFragment main = (MainFragment)getSupportFragmentManager().findFragmentById(R.id.fragmentMain);
+        MainFragment main = (MainFragment) getSupportFragmentManager().findFragmentById(R.id.fragmentMain);
+        main.setFilterConnection(filterWidget.getModel());
+
+        RoomFragment fragment = (RoomFragment) getSupportFragmentManager().findFragmentById(R.id.fragmentRoom);
+        fragment.setFilterConnection(filterWidget.getModel());
+
 
         roomText2Enum = new HashMap<>();
         for (Room.Name roomNameEnum : Room.Name.values()) {
@@ -89,8 +97,6 @@ public class Main extends AppCompatActivity implements IRoomSelectionListener {
         onStartCheckMoveChildrenInInitialRoom();
 
         initUserAccessListeners();
-
-        connectToFilter();
 
 //        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
 //        fab.setOnClickListener(new View.OnClickListener() {
@@ -144,7 +150,7 @@ public class Main extends AppCompatActivity implements IRoomSelectionListener {
     }
 
     private void selectRoom(Room room, boolean justStarting) {
-        RoomFragment fragment = (RoomFragment)getSupportFragmentManager().findFragmentById(R.id.fragmentRoom);
+        RoomFragment fragment = (RoomFragment) getSupportFragmentManager().findFragmentById(R.id.fragmentRoom);
         if (fragment != null) {
             // two fragment layout
             fragment.dataInit(room);
@@ -226,6 +232,7 @@ public class Main extends AppCompatActivity implements IRoomSelectionListener {
 
     /**
      * Allows to display toast (short-living notification message)
+     *
      * @param resourceId
      * @param params
      */
@@ -239,15 +246,5 @@ public class Main extends AppCompatActivity implements IRoomSelectionListener {
         Toast.makeText(appContext, message, Toast.LENGTH_LONG).show();
     }
 
-    private void connectToFilter() {
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        if (toolbar == null) {
-            Log.w(Main.getTag(), "No toolbar in the application?");
-            return;
-        }
-        FilterWidget filterWidget = (FilterWidget)toolbar.findViewById(R.id.filterWidget);
-        filterWidget.addFilterListener((filterModel) -> {
-            Log.d(Main.getTag(), String.format("Filter changes to %s", filterModel));
-        });
-    }
 }
+

@@ -30,4 +30,10 @@
         android:id="@+id/txtFilterName"
         android:imeOptions="actionDone"
         />
+
+    <ImageButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/btnActivateTextFilter"
+        android:background="@android:drawable/ic_notification_clear_all"/>
 </LinearLayout>

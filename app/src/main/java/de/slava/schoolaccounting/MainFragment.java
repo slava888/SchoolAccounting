@@ -7,12 +7,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import de.slava.schoolaccounting.filter.FilterModel;
 import de.slava.schoolaccounting.model.Room;
 import de.slava.schoolaccounting.model.db.EntityManager;
 import de.slava.schoolaccounting.model.db.RoomDao;
@@ -30,6 +32,7 @@ public class MainFragment extends Fragment {
     @Bind(R.id.room018) RoomView room018;
     @Bind(R.id.roomTH) RoomView roomTH;
     @Bind(R.id.roomHof) RoomView roomHof;
+    private final List<RoomView> allRooms = new ArrayList<>();
 
     private EntityManager getDb() {
         return EntityManager.instance(getContext());
@@ -39,11 +42,11 @@ public class MainFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View ret = inflater.inflate(R.layout.main_fragment, container, false);
         ButterKnife.bind(this, ret);
-        syncModelWithUI();
+        initRooms();
         return ret;
     }
 
-    private void syncModelWithUI() {
+    private void initRooms() {
         if (roomHome == null)
             return;
         Map<String, RoomView> room2View = new HashMap<>();
@@ -63,6 +66,13 @@ public class MainFragment extends Fragment {
             } else {
                 view.dataInit(room);
             }
+            allRooms.add(view);
+        }
+    }
+
+    public void setFilterConnection(FilterModel filterModel) {
+        for (RoomView r : allRooms) {
+            r.setFilterConnection(filterModel);
         }
     }
 }

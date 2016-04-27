@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import de.slava.schoolaccounting.model.BaseObservable;
+import de.slava.schoolaccounting.util.StringUtils;
 
 /**
  * Model for filter
@@ -11,10 +12,12 @@ import de.slava.schoolaccounting.model.BaseObservable;
  */
 public class FilterModel extends BaseObservable {
     public static final String PROPERTY_TEXT = "text";
+    public static final String PROPERTY_TEXT_ACTIVE = "textActive";
     public static final String PROPERTY_CATEGORIES = "categories";
 
     private Set<Integer> categories = new HashSet<>();
     private String text;
+    private boolean textActive = false;
 
     public Set<Integer> getCategories() {
         return categories;
@@ -49,11 +52,25 @@ public class FilterModel extends BaseObservable {
     public void setText(String text) {
         String oldValue = this.text;
         this.text = text;
+        if (StringUtils.isBlank(text))
+            setTextActive(false);
+        else
+            setTextActive(true);
         super.firePropertyChange(PROPERTY_TEXT, oldValue, text);
+    }
+
+    public boolean isTextActive() {
+        return textActive;
+    }
+
+    public void setTextActive(boolean textActive) {
+        boolean oldValue = this.textActive;
+        this.textActive = textActive;
+        super.firePropertyChange(PROPERTY_TEXT_ACTIVE, oldValue, textActive);
     }
 
     @Override
     public String toString() {
-        return String.format("%s{%s, %s}", getClass().getSimpleName(), getCategories(), getText());
+        return String.format("%s{%s, %s%s}", getClass().getSimpleName(), getCategories(), getText(), isTextActive() ? "" : "(-)");
     }
 }

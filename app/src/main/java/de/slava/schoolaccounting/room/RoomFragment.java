@@ -2,12 +2,10 @@ package de.slava.schoolaccounting.room;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.GridView;
-import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -18,11 +16,10 @@ import java.util.Set;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
-import de.slava.schoolaccounting.Main;
 import de.slava.schoolaccounting.R;
+import de.slava.schoolaccounting.filter.FilterModel;
 import de.slava.schoolaccounting.model.Child;
 import de.slava.schoolaccounting.model.Room;
-import de.slava.schoolaccounting.model.SchoolModel;
 
 /**
  * @author by V.Sysoltsev
@@ -36,6 +33,8 @@ public class RoomFragment extends Fragment {
     @Bind(R.id.textHeader) TextView textHeader;
     @Bind(R.id.textNumber) TextView textNumber;
     @Bind(R.id.listView) GridView listScholars;
+    private FilterModel filterModel;
+    private PropertyChangeListener filterChangeListener;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -76,10 +75,30 @@ public class RoomFragment extends Fragment {
             listScholars.setAdapter(listAdapter);
         }
         textHeader.setText(roomModel.getName());
-        Set<Child> children = roomModel.getChildrenReadOnly();
+        Set<Child> children = roomModel.getChildrenFiltered(filterModel);
         textNumber.setText(String.format("%d", children.size()));
         listAdapter.clear();
         listAdapter.addAll(children);
+    }
+
+    public void setFilterConnection(FilterModel filterModel) {
+        if (this.filterModel == filterModel) {
+            return;
+        }
+        if (this.filterModel != null && filterChangeListener != null) {
+            this.filterModel.removeChangeListener(filterChangeListener);
+        }
+        this.filterModel = filterModel;
+        Runnable applyFilter = () -> {
+            syncModelWithUI();
+        };
+        applyFilter.run();
+        if (filterModel != null) {
+            if (filterChangeListener == null) {
+                filterChangeListener = (event) -> applyFilter.run();
+            }
+            filterModel.addChangeListener(filterChangeListener);
+        }
     }
 
 }

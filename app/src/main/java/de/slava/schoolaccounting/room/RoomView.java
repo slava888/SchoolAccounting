@@ -26,6 +26,7 @@ import butterknife.ButterKnife;
 import de.slava.schoolaccounting.Main;
 import de.slava.schoolaccounting.R;
 import de.slava.schoolaccounting.dnd.DNDObject;
+import de.slava.schoolaccounting.filter.FilterModel;
 import de.slava.schoolaccounting.model.Child;
 import de.slava.schoolaccounting.model.Room;
 import de.slava.schoolaccounting.model.db.EntityManager;
@@ -42,7 +43,10 @@ public class RoomView extends RelativeLayout {
         return EntityManager.instance(getContext());
     }
     private Room roomModel;
+    private Drawable normalBackground;
     private Drawable savedBackground;
+    private FilterModel filterModel;
+    private PropertyChangeListener filterChangeListener;
 
     private static class SavedState extends View.BaseSavedState {
         @Getter
@@ -100,6 +104,8 @@ public class RoomView extends RelativeLayout {
         // init this
         View view = inflate(getContext(), R.layout.room_view, this);
         ButterKnife.bind(this, view);
+
+        normalBackground = getBackground();
 
 //        // Load attributes
 //        final TypedArray a = getContext().obtainStyledAttributes(attrs, R.styleable.RoomView, defStyle, 0);
@@ -167,11 +173,32 @@ public class RoomView extends RelativeLayout {
             listPreview.setAdapter(scholarsPreviewAdapter);
         }
         textHeader.setText(roomModel.getName());
-        Set<Child> children = roomModel.getChildrenReadOnly();
-        textNumber.setText(String.format("%d", children.size()));
+        Set<Child> children = roomModel.getChildrenFiltered(filterModel);
+        int childrenTotal = roomModel.getTotalChildrenCount();
+        boolean filterInEffect = childrenTotal != children.size();
+
+        // set text for number of children in the room
+        if (filterInEffect)
+            textNumber.setText(String.format("%d(%d)", children.size(), childrenTotal));
+        else
+            textNumber.setText(String.format("%d", children.size()));
+
+        // set special background if no children in the room as effect of filter
+        if (children.isEmpty()) {
+            Log.d(Main.getTag(), String.format("View %s now has empty background", roomModel.getName()));
+            setBackgroundResource(R.drawable.main_room_border_filtered_out);
+        } else {
+            Log.d(Main.getTag(), String.format("View %s now has normal background", roomModel.getName()));
+            setBackgroundResource(R.drawable.main_room_border);
+        }
+        // if we're in the middle of DnD, update the 'normal' background
+        savedBackground = getBackground();
+
+        // children list as preview
         scholarsPreviewAdapter.clear();
         List<String> preview = new ArrayList<>();
-        for (Child s : roomModel.getChildrenReadOnly()) {
+        for (Child s : children) {
+            // TODO remove fixed 3, write as much entries how much fits the height
             if (preview.size() >= 3) {
                 preview.add("...");
                 break;
@@ -230,5 +257,25 @@ public class RoomView extends RelativeLayout {
         Log.d(Main.getTag(), String.format("Move child %s to room %s", child, roomModel));
         child.moveToToom(roomModel);
         return true;
+    }
+
+    public void setFilterConnection(FilterModel filterModel) {
+        if (this.filterModel == filterModel) {
+            return;
+        }
+        if (this.filterModel != null && filterChangeListener != null) {
+            this.filterModel.removeChangeListener(filterChangeListener);
+        }
+        this.filterModel = filterModel;
+        Runnable applyFilter = () -> {
+            syncModelWithUI();
+        };
+        applyFilter.run();
+        if (filterModel != null) {
+            if (filterChangeListener == null) {
+                filterChangeListener = (event) -> applyFilter.run();
+            }
+            filterModel.addChangeListener(filterChangeListener);
+        }
     }
 }

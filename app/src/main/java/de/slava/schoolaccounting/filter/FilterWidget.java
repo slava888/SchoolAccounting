@@ -11,13 +11,17 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 
 import java.beans.PropertyChangeEvent;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import butterknife.Bind;
@@ -27,33 +31,35 @@ import de.slava.schoolaccounting.R;
 import de.slava.schoolaccounting.model.Category;
 import de.slava.schoolaccounting.model.db.CategoryDao;
 import de.slava.schoolaccounting.model.db.EntityManager;
+import de.slava.schoolaccounting.util.DelayedSync;
+import de.slava.schoolaccounting.util.StringUtils;
 import lombok.Getter;
 
 /**
  * @author by V.Sysoltsev
  */
 public class FilterWidget extends LinearLayout {
-    public static interface IFilterListener {
-        public void onFilterChanges(FilterModel filter);
-    }
 
     @Bind(R.id.txtFilterName) EditText txtFilterName;
+    private Map<Category, ImageButton> cat2Btn = new HashMap<>();
+    @Bind(R.id.btnActivateTextFilter) ImageButton btnActivateTextFilter;
 
     @Getter
-    private FilterModel model;
-
-    private Set<IFilterListener> filterListeners = new HashSet<>();
+    private FilterModel model = new FilterModel();
 
     private static class SavedState extends View.BaseSavedState {
         @Getter
         private Set<Integer> categories;
         @Getter
         private String text;
+        @Getter
+        private boolean textActive;
 
         public SavedState(Parcelable source, FilterModel model) {
             super(source);
             this.categories = model.getCategories();
             this.text = model.getText();
+            this.textActive = model.isTextActive();
         }
 
         public SavedState(Parcel source) {
@@ -66,6 +72,7 @@ public class FilterWidget extends LinearLayout {
                 }
             }
             text = source.readString();
+            textActive = source.readInt() != 0;
         }
 
         @Override
@@ -78,6 +85,7 @@ public class FilterWidget extends LinearLayout {
                 a[i++] = v;
             out.writeIntArray(a);
             out.writeString(text);
+            out.writeInt(textActive ? 1 : 0);
         }
 
         public static final Parcelable.Creator<SavedState> CREATOR = new Parcelable.Creator<SavedState>() {
@@ -120,6 +128,7 @@ public class FilterWidget extends LinearLayout {
         super.onRestoreInstanceState(ss.getSuperState());
         model.setCategories(ss.getCategories());
         model.setText(ss.getText());
+        model.setTextActive(ss.isTextActive());
     }
 
     private EntityManager getDb() {
@@ -130,7 +139,6 @@ public class FilterWidget extends LinearLayout {
         // init this
         View view = inflate(getContext(), R.layout.filter_widget, this);
         ButterKnife.bind(this, view);
-        model = new FilterModel();
 
         // add buttons
         CategoryDao dao = getDb().getDao(CategoryDao.class);
@@ -139,42 +147,79 @@ public class FilterWidget extends LinearLayout {
         for (Category category : categories) {
             ImageButton btn = new ImageButton(getContext());
             container.addView(btn);
+            cat2Btn.put(category, btn);
             int resId = category.getImage().getSid().getResourceId();
             Drawable image = ContextCompat.getDrawable(getContext(), resId);
             btn.setBackground(image);
+            final int catId = category.getId();
+            getModel().addCategory(catId);
             btn.setOnClickListener(v -> {
                 Log.d(Main.getTag(), String.format("Button %s clicked", category.getName()));
+                if (getModel().isCategoryActivated(catId))
+                    getModel().removeCategory(catId);
+                else
+                    getModel().addCategory(catId);
             });
         }
+
+        final DelayedSync<String> textSync = new DelayedSync<>(t -> {
+            Log.d(Main.getTag(), String.format("Text changes to %s", t));
+            model.setText(t);
+        });
 
         // bind text fields
         txtFilterName.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
             }
+
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
             }
+
             @Override
             public void afterTextChanged(Editable s) {
-                model.setText(txtFilterName.getText().toString());
-                // TODO: delay by 1 sec?
-                notifyFilterListeners(model);
+                if (!StringUtils.isBlank(s.toString()))
+                    getModel().setTextActive(true);
+                textSync.syncDelayed(txtFilterName.getText().toString(), 500);
             }
         });
+        txtFilterName.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                // update model immediately
+                textSync.syncImmediately(txtFilterName.getText().toString());
+            }
+            return false;
+        });
+
+        btnActivateTextFilter.setOnClickListener(v -> {
+            FilterModel model = getModel();
+            if (StringUtils.isBlank(model.getText()))
+                model.setTextActive(false);
+            else
+                getModel().setTextActive(!getModel().isTextActive());
+        });
+
+        getModel().addChangeListener(this::syncModelWithUI);
+        syncModelWithUI(null);
     }
 
-    public void addFilterListener(IFilterListener listener) {
-        filterListeners.add(listener);
-    }
-
-    public void removeFilterListener(IFilterListener listener) {
-        filterListeners.remove(listener);
-    }
-
-    public void notifyFilterListeners(FilterModel model) {
-        for (IFilterListener l : filterListeners) {
-            l.onFilterChanges(model);
+    private void syncModelWithUI(PropertyChangeEvent event) {
+        if (event == null || FilterModel.PROPERTY_CATEGORIES.equals(event.getPropertyName())) {
+            for (Map.Entry<Category, ImageButton> it : cat2Btn.entrySet()) {
+                int id = it.getKey().getId();
+                boolean active = getModel().isCategoryActivated(id);
+                it.getValue().setAlpha(active ? 1.f : 0.3f);
+            }
+        }
+        if (event == null || FilterModel.PROPERTY_TEXT.equals(event.getPropertyName())) {
+            if (!Objects.equals(txtFilterName.getText().toString(), model.getText())) {
+                txtFilterName.setText(model.getText());
+            }
+        }
+        if (event == null || FilterModel.PROPERTY_TEXT_ACTIVE.equals(event.getPropertyName())) {
+            btnActivateTextFilter.setAlpha(getModel().isTextActive() ? 1.f : 0.3f);
+            txtFilterName.setAlpha(getModel().isTextActive() ? 1.f : 0.3f);
         }
     }
 }

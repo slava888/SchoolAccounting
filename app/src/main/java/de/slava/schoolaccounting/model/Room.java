@@ -12,6 +12,7 @@ import java.util.Set;
 
 import de.slava.schoolaccounting.Main;
 import de.slava.schoolaccounting.R;
+import de.slava.schoolaccounting.filter.FilterModel;
 import de.slava.schoolaccounting.model.db.JournalDao;
 import de.slava.schoolaccounting.util.DateUtils;
 import lombok.AllArgsConstructor;
@@ -42,6 +43,11 @@ public class Room extends BasicEntity {
         }
     }
 
+    public final static String PROPERTY_NAME = "name";
+    public final static String PROPERTY_INITIAL = "initial";
+    public final static String PROPERTY_PROTOCOL_ON_ENTRY = "protocolOnEntry";
+    public final static String PROPERTY_CHILDREN = "children";
+
     private String name;
     private boolean initial;
     private boolean protocolOnEntry;
@@ -65,7 +71,7 @@ public class Room extends BasicEntity {
     public void setName(String name) {
         String oldValue = this.name;
         this.name = name;
-        super.firePropertyChange("name", oldValue, name);
+        super.firePropertyChange(PROPERTY_NAME, oldValue, name);
     }
 
     public boolean isInitial() {
@@ -75,7 +81,7 @@ public class Room extends BasicEntity {
     public void setInitial(boolean initial) {
         boolean oldValue = this.initial;
         this.initial = initial;
-        super.firePropertyChange("initial", oldValue, initial);
+        super.firePropertyChange(PROPERTY_INITIAL, oldValue, initial);
     }
 
     public boolean isProtocolOnEntry() {
@@ -85,29 +91,43 @@ public class Room extends BasicEntity {
     public void setProtocolOnEntry(boolean protocolOnEntry) {
         boolean oldValue = this.protocolOnEntry;
         this.protocolOnEntry = protocolOnEntry;
-        super.firePropertyChange("protocolOnEntry", oldValue, protocolOnEntry);
+        super.firePropertyChange(PROPERTY_PROTOCOL_ON_ENTRY, oldValue, protocolOnEntry);
     }
 
     public void addChild(Child child) {
         Log.d(Main.getTag(), String.format("Adding child %s to room %s", child, this));
-        children.add(child);
-        if (isProtocolOnEntry()) {
-            Calendar now = GregorianCalendar.getInstance();
-            Log.d(Main.getTag(), String.format("Protocol entrance of child %s to room %s on %s", child, this, DateUtils.dateTimeToString(now)));
-            JournalDao jdao = getPersistingDao().getDao(JournalDao.class);
-            jdao.upsert(child, this, now);
+        if (children.add(child)) {
+            if (isProtocolOnEntry()) {
+                Calendar now = GregorianCalendar.getInstance();
+                Log.d(Main.getTag(), String.format("Protocol entrance of child %s to room %s on %s", child, this, DateUtils.dateTimeToString(now)));
+                JournalDao jdao = getPersistingDao().getDao(JournalDao.class);
+                jdao.upsert(child, this, now);
+            }
+            super.firePropertyChange(PROPERTY_CHILDREN, null, children);
         }
-        super.firePropertyChange("children", null, children);
     }
 
     public void removeChild(Child child) {
         Log.d(Main.getTag(), String.format("Removing child %s from room %s", child, this));
-        children.remove(child);
-        super.firePropertyChange("children", null, children);
+        if (children.remove(child))
+            super.firePropertyChange(PROPERTY_CHILDREN, null, children);
     }
 
-    public Set<Child> getChildrenReadOnly() {
-        return Collections.unmodifiableSet(children);
+    /**
+     * Returns the number of children in the room, without filter
+     * @return
+     */
+    public int getTotalChildrenCount() {
+        return children.size();
+    }
+
+    public Set<Child> getChildrenFiltered(FilterModel filter) {
+        Set<Child> ret = new HashSet<>();
+        for (Child child : children) {
+            if (child.isMatch(filter))
+                ret.add(child);
+        }
+        return ret;
     }
 
     public void setChildren(Collection<Child> children) {

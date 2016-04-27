@@ -4,6 +4,7 @@
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#ff4081</color>
     <color name="main_room_background">#80ffdf</color>
+    <color name="main_room_background_filtered_out">#c2d7d2</color>
     <color name="journal_background">#bbf0ff</color>
     <color name="main_room_background_emphasized">#00ffca</color>
     <color name="main_room_border_emphasized">#00ba34</color>
