@@ -10,14 +10,9 @@ import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import de.slava.schoolaccounting.Main;
-import de.slava.schoolaccounting.model.Category;
-import de.slava.schoolaccounting.model.Child;
-import de.slava.schoolaccounting.model.Room;
-import de.slava.schoolaccounting.model.SchoolModel;
 
 /**
  * @author by V.Sysoltsev
@@ -87,7 +82,7 @@ public class EntityManager extends SQLiteOpenHelper {
     private static EntityManager instance;
     public static synchronized EntityManager instance(Context context) {
         if (instance == null) {
-            // context.deleteDatabase(EntityManager.DATABASE_NAME);
+            //context.deleteDatabase(EntityManager.DATABASE_NAME);
             instance = new EntityManager(context);
         }
         return instance;

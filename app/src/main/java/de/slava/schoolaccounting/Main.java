@@ -85,7 +85,8 @@ public class Main extends AppCompatActivity implements IRoomSelectionListener {
         main.setFilterConnection(filterWidget.getModel());
 
         RoomFragment fragment = (RoomFragment) getSupportFragmentManager().findFragmentById(R.id.fragmentRoom);
-        fragment.setFilterConnection(filterWidget.getModel());
+        if (fragment != null)
+            fragment.setFilterConnection(filterWidget.getModel());
 
 
         roomText2Enum = new HashMap<>();
@@ -163,6 +164,7 @@ public class Main extends AppCompatActivity implements IRoomSelectionListener {
             // single fragment layout
             if (!justStarting) {
                 fragment = new RoomFragment();
+                fragment.setFilterConnection(filterWidget.getModel());
                 fragment.dataInit(room);
                 this.getSupportFragmentManager().beginTransaction()
                         .replace(R.id.mainLayout, fragment, room.getName())
