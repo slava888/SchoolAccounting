@@ -17,6 +17,7 @@ public class Image extends BasicEntity {
         , PERSON_4(R.drawable.person_4)
         , PERSON_5(R.drawable.person_5)
         , PERSON_6(R.drawable.person_6)
+        , PERSON_7(R.drawable.flower)
         ;
         private final int resourceId;
 
