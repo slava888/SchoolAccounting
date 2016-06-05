@@ -6,6 +6,7 @@
     <color name="main_room_background">#80ffdf</color>
     <color name="main_room_background_filtered_out">#c2d7d2</color>
     <color name="journal_background">#bbf0ff</color>
+    <color name="manage_children_list_background">#fff0bb</color>
     <color name="main_room_background_emphasized">#00ffca</color>
     <color name="main_room_border_emphasized">#00ba34</color>
     <color name="room_view_background">#7be700</color>

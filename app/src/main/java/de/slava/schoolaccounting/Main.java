@@ -21,6 +21,7 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import de.slava.schoolaccounting.filter.FilterWidget;
 import de.slava.schoolaccounting.journal.JournalActivity;
+import de.slava.schoolaccounting.manage.children.ManageChildrenActivity;
 import de.slava.schoolaccounting.model.AppOption;
 import de.slava.schoolaccounting.model.Room;
 import de.slava.schoolaccounting.model.UserEnvironment;
@@ -30,6 +31,7 @@ import de.slava.schoolaccounting.model.db.OptionsDao;
 import de.slava.schoolaccounting.model.db.RoomDao;
 import de.slava.schoolaccounting.room.IRoomSelectionListener;
 import de.slava.schoolaccounting.room.RoomFragment;
+import de.slava.schoolaccounting.util.ApiSanityCheck;
 import de.slava.schoolaccounting.util.DateUtils;
 import de.slava.schoolaccounting.util.SeqWatcher;
 
@@ -52,8 +54,7 @@ public class Main extends AppCompatActivity implements IRoomSelectionListener {
 
     private Menu mainMenu;
 
-    @Bind(R.id.filterWidget)
-    FilterWidget filterWidget;
+    @Bind(R.id.filterWidget) FilterWidget filterWidget;
 
     /**
      * Returns the tag for logging, which contains the calling class:line
@@ -74,6 +75,13 @@ public class Main extends AppCompatActivity implements IRoomSelectionListener {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        try {
+            new ApiSanityCheck(this).check();
+        } catch (ApiSanityCheck.SanityCheckFailedException sanityCheckFailedexception) {
+            return;
+        }
+
         appContext = getApplicationContext();
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
@@ -129,6 +137,8 @@ public class Main extends AppCompatActivity implements IRoomSelectionListener {
                 return openJournal();
             case R.id.menuDebugDB:
                 return openDebugDB();
+            case R.id.menuManageChildren:
+                return openManageChildren();
         }
         return super.onOptionsItemSelected(item);
     }
@@ -178,10 +188,12 @@ public class Main extends AppCompatActivity implements IRoomSelectionListener {
         UserEnvironment.instance().addChangeListener((change) -> {
             if (UserEnvironment.PROPERTY_ACCESS_RIGHT.equals(change.getPropertyName())) {
                 Log.d(Main.getTag(), String.format("User access changes from %s to %s", change.getOldValue(), change.getNewValue()));
-                MenuItem debugDbMenuItem = mainMenu.findItem(R.id.menuDebugDB);
-                if (debugDbMenuItem != null) {
-                    debugDbMenuItem.setVisible(UserEnvironment.instance().getAccessRight().higherOrEqualsThan(AccessRight.DEV));
-                }
+                MenuItem menuDebugDB = mainMenu.findItem(R.id.menuDebugDB);
+                if (menuDebugDB != null)
+                    menuDebugDB.setVisible(UserEnvironment.instance().getAccessRight().higherOrEqualsThan(AccessRight.DEV));
+                MenuItem menuManageChildren = mainMenu.findItem(R.id.menuManageChildren);
+                if (menuManageChildren != null)
+                    menuManageChildren.setVisible(UserEnvironment.instance().getAccessRight().higherOrEqualsThan(AccessRight.ADMIN));
             }
         });
     }
@@ -198,6 +210,12 @@ public class Main extends AppCompatActivity implements IRoomSelectionListener {
 
     private boolean openDebugDB() {
         Intent intent = new Intent(this, AndroidDatabaseManager.class);
+        startActivity(intent);
+        return true;
+    }
+
+    private boolean openManageChildren() {
+        Intent intent = new Intent(this, ManageChildrenActivity.class);
         startActivity(intent);
         return true;
     }

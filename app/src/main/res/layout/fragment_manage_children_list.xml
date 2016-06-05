@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:name="de.slava.schoolaccounting.manage.children.ManageChildrenFragment"
+    style="@style/FullSizeLayout"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context="de.slava.schoolaccounting.manage.children.ManageChildrenFragment"
+    tools:showIn="@layout/activity_manage_children">
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/childrenList"
+        style="@style/FullSizeLayout"
+        app:layoutManager="LinearLayoutManager"
+        tools:listitem="@layout/room_child_item"
+        android:layout_above="@+id/manageChildrenBottomToolbar"
+        android:background="@drawable/manage_children_list_background"/>
+
+    <LinearLayout
+        android:id="@+id/manageChildrenBottomToolbar"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginTop="4dip"
+        android:background="@drawable/manage_children_list_background">
+        <Button
+            android:id="@+id/btnExport"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Export"
+            android:drawableLeft="@drawable/img_export_csv"/>
+        <Button
+            android:id="@+id/btnImport"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Import"
+            android:drawableLeft="@drawable/img_import"/>
+    </LinearLayout>
+
+
+</RelativeLayout>

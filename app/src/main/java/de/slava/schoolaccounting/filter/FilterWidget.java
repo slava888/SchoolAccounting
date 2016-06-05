@@ -141,25 +141,27 @@ public class FilterWidget extends LinearLayout {
         ButterKnife.bind(this, view);
 
         // add buttons
-        CategoryDao dao = getDb().getDao(CategoryDao.class);
-        List<Category> categories = dao.getAll(null, null, CategoryDao.COLUMN_NAME + " ASC");
-        ViewGroup container = (ViewGroup)findViewById(R.id.catContainer);
-        for (Category category : categories) {
-            ImageButton btn = new ImageButton(getContext());
-            container.addView(btn);
-            cat2Btn.put(category, btn);
-            int resId = category.getImage().getSid().getResourceId();
-            Drawable image = ContextCompat.getDrawable(getContext(), resId);
-            btn.setBackground(image);
-            final int catId = category.getId();
-            getModel().addCategory(catId);
-            btn.setOnClickListener(v -> {
-                Log.d(Main.getTag(), String.format("Button %s clicked", category.getName()));
-                if (getModel().isCategoryActivated(catId))
-                    getModel().removeCategory(catId);
-                else
-                    getModel().addCategory(catId);
-            });
+        if (!isInEditMode()) {
+            CategoryDao dao = getDb().getDao(CategoryDao.class);
+            List<Category> categories = dao.getAll(null, null, CategoryDao.COLUMN_NAME + " ASC");
+            ViewGroup container = (ViewGroup) findViewById(R.id.catContainer);
+            for (Category category : categories) {
+                ImageButton btn = new ImageButton(getContext());
+                container.addView(btn);
+                cat2Btn.put(category, btn);
+                int resId = category.getImage().getSid().getResourceId();
+                Drawable image = ContextCompat.getDrawable(getContext(), resId);
+                btn.setBackground(image);
+                final int catId = category.getId();
+                getModel().addCategory(catId);
+                btn.setOnClickListener(v -> {
+                    Log.d(Main.getTag(), String.format("Button %s clicked", category.getName()));
+                    if (getModel().isCategoryActivated(catId))
+                        getModel().removeCategory(catId);
+                    else
+                        getModel().addCategory(catId);
+                });
+            }
         }
 
         final DelayedSync<String> textSync = new DelayedSync<>(t -> {
