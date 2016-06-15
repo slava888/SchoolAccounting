@@ -1,15 +1,13 @@
 package de.slava.schoolaccounting.model.db;
 
-import android.app.Application;
 import android.content.ContentValues;
 import android.database.Cursor;
-import android.util.Log;
-import android.widget.Toast;
 
 import java.util.List;
 
 import de.slava.schoolaccounting.Main;
 import de.slava.schoolaccounting.R;
+import de.slava.schoolaccounting.model.BasicEntity;
 import de.slava.schoolaccounting.model.Category;
 import de.slava.schoolaccounting.model.Child;
 import de.slava.schoolaccounting.model.Image;
@@ -19,6 +17,7 @@ import de.slava.schoolaccounting.model.Room;
  * @author by V.Sysoltsev
  */
 public class ChildDao extends BaseJPADao<Child> {
+    public final static String COLUMN_ACTIVE = "ACTIVE";
     public final static String COLUMN_NAME = "NAME";
     public final static String COLUMN_ROOM_FK = "ROOM_FK";
     public final static String COLUMN_IMAGE_FK = "IMAGE_FK";
@@ -30,13 +29,14 @@ public class ChildDao extends BaseJPADao<Child> {
 
     @Override
     protected String getTableName() {
-        return "CHILD";
+        return EntityManager.DATABASE_TABLE_CHILD;
     }
 
     @Override
     protected ContentValues asCV(Child entity) {
         ContentValues ret = new ContentValues();
         ret.put(COLUMN_ID, entity.getId());
+        ret.put(COLUMN_ACTIVE, entity.isActive());
         ret.put(COLUMN_NAME, entity.getNameFull());
         ret.put(COLUMN_ROOM_FK, entity.getRoom() != null ? entity.getRoom().getId() : null);
         ret.put(COLUMN_IMAGE_FK, entity.getImage() != null ? entity.getImage().getId() : null);
@@ -45,7 +45,7 @@ public class ChildDao extends BaseJPADao<Child> {
     }
 
     private final static String[] columns = {
-        COLUMN_ID, COLUMN_NAME, COLUMN_ROOM_FK, COLUMN_IMAGE_FK, COLUMN_CATEGORY_FK
+        COLUMN_ID, COLUMN_ACTIVE, COLUMN_NAME, COLUMN_ROOM_FK, COLUMN_IMAGE_FK, COLUMN_CATEGORY_FK
     };
 
     @Override
@@ -56,6 +56,8 @@ public class ChildDao extends BaseJPADao<Child> {
     @Override
     protected Child fromCursor(Cursor cursor) {
         Integer id = cursor.getInt(cursor.getColumnIndex(COLUMN_ID));
+        Integer activeI = cursor.getInt(cursor.getColumnIndex(COLUMN_ACTIVE));
+        boolean active = BasicEntity.i2b(activeI);
         String name = cursor.getString(cursor.getColumnIndex(COLUMN_NAME));
         Integer roomFk = cursor.getInt(cursor.getColumnIndex(COLUMN_ROOM_FK)); // TODO: lazy loading? Maybe I should have used hibernate after all...
         Room room = null;
@@ -72,13 +74,14 @@ public class ChildDao extends BaseJPADao<Child> {
         if (categoryFk != null) {
             category = getDao(CategoryDao.class).getById(categoryFk);
         }
-        return new Child(id, name, room, image, category);
+        return new Child(id, active, name, room, image, category);
 
     }
 
     @Override
     void mergeInto(Child target, Child source) {
         assert target.getId() == source.getId();
+        target.setActive(source.isActive());
         target.setNameFull(source.getNameFull());
         target.setRoom(source.getRoom());
         target.setImage(source.getImage());

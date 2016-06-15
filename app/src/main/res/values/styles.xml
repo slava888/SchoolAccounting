@@ -31,13 +31,20 @@
         <item name="android:layout_height">wrap_content</item>
     </style>
 
-    <style name="FullSizeLayout">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">match_parent</item>
+    <style name="NoPadding">
         <item name="android:paddingBottom">@dimen/zero</item>
         <item name="android:paddingLeft">@dimen/zero</item>
         <item name="android:paddingRight">@dimen/zero</item>
         <item name="android:paddingTop">@dimen/zero</item>
+    </style>
+
+    <style name="FullSizeLayout" parent="NoPadding">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+    </style>
+
+    <style name="DetailLabel" parent="@android:style/TextAppearance.Large">
+        <item name="android:textColor">@color/colorPrimaryDark</item>
     </style>
 
 </resources>

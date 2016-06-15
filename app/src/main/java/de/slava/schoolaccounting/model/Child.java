@@ -1,7 +1,6 @@
 package de.slava.schoolaccounting.model;
 
 import de.slava.schoolaccounting.filter.FilterModel;
-import lombok.ToString;
 import lombok.experimental.Accessors;
 
 /**
@@ -10,21 +9,32 @@ import lombok.experimental.Accessors;
 @Accessors(chain=true)
 public class Child extends BasicEntity {
     public final static String PROPERTY_NAME_FULL = "nameFull";
+    public final static String PROPERTY_ACTIVE = "active";
     public final static String PROPERTY_ROOM = "room";
     public final static String PROPERTY_IMAGE = "image";
     public final static String PROPERTY_CATEGORY = "category";
 
     private String nameFull;
+    private boolean active;
     private Room room;
     private Image image;
     private Category category;
 
     public Child() { this(null, null); }
 
-    public Child(Integer id, String name) { this(id, name, null, null, null); }
+    public Child(Integer id, String name) { this(id, true, name, null, null, null); }
 
-    public Child(Integer id, String name, Room room, Image image, Category category) {
+    public Child(Child other) {
+        setActive(other.isActive());
+        setNameFull(other.getNameFull());
+        setRoom(other.getRoom());
+        setImage(other.getImage());
+        setCategory(other.getCategory());
+    }
+
+    public Child(Integer id, boolean active, String name, Room room, Image image, Category category) {
         super(id);
+        setActive(active);
         setNameFull(name);
         setRoom(room);
         setImage(image);
@@ -45,6 +55,16 @@ public class Child extends BasicEntity {
         super.firePropertyChange(PROPERTY_ROOM, oldRoom, newRoom);
         if (getPersistingDao() != null)
             getPersistingDao().update(this);
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        boolean oldValue = this.active;
+        this.active = active;
+        super.firePropertyChange(PROPERTY_ACTIVE, oldValue, active);
     }
 
     public String getNameFull() {
@@ -89,7 +109,7 @@ public class Child extends BasicEntity {
 
     @Override
     public String toString() {
-        return String.format("%s{%d, %s, in %s}", getClass().getSimpleName(), getId(), getNameFull(), getRoom());
+        return String.format("%s{%s%d, %s, in %s}", getClass().getSimpleName(), isActive() ? "" : "X, ", getId(), getNameFull(), getRoom());
     }
 
     /**

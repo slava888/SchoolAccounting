@@ -1,14 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
+    style="@style/FullSizeLayout"
+    android:orientation="horizontal"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context=".manage.children.ManageChildrenActivity"
     tools:showIn="@layout/activity_manage_children">
@@ -16,6 +12,16 @@
     <fragment
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_weight="1"
         android:name="de.slava.schoolaccounting.manage.children.ManageChildrenFragment"
+        app:column_count="3"
         android:id="@+id/fragmentListChildren"/>
-</RelativeLayout>
+
+    <fragment
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_marginLeft="@dimen/children_manage_padding"
+        android:name="de.slava.schoolaccounting.manage.children.ManageChildFragment"
+        android:id="@+id/fragmentChildProperties"/>
+
+</LinearLayout>

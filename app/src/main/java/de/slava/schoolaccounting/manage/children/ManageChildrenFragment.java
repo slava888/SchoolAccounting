@@ -1,11 +1,13 @@
 package de.slava.schoolaccounting.manage.children;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -57,10 +59,25 @@ public class ManageChildrenFragment extends Fragment {
     }
 
     @Override
+    public void onInflate(Context context, AttributeSet attrs, Bundle savedInstanceState) {
+        super.onInflate(context, attrs, savedInstanceState);
+        Log.d(Main.getTag(), "onInflate called");
+
+        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.ManageChildrenFragment);
+        int myInteger = a.getInt(R.styleable.ManageChildrenFragment_column_count, -1);
+        if (myInteger != -1) {
+            Log.d(Main.getTag(), String.format("Received argument through styled attributes: %d", myInteger));
+            mColumnCount = myInteger;
+        }
+        a.recycle();
+    }
+
+    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             mColumnCount = getArguments().getInt(ARG_COLUMN_COUNT);
+            Log.d(Main.getTag(), String.format("Received argument through bundle: %d", mColumnCount));
         }
     }
 
@@ -94,6 +111,11 @@ public class ManageChildrenFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    public void refresh(Child child) {
+        // TODO: do more intelligently?
+        syncModelWithUI();
     }
 
     private void syncModelWithUI() {

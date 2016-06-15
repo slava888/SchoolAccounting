@@ -28,7 +28,7 @@ public class EntityManager extends SQLiteOpenHelper {
     private final Context context;
     private Map<Class<?>, Object> daoCache = new HashMap<>();
 
-    public static final int DATABASE_VERSION = 1;
+    public static final int DATABASE_VERSION = 2;
     public static final String DATABASE_NAME = "SchoolAccounting";
     public static final String DATABASE_TABLE_ROOM = "ROOM";
     public static final String DATABASE_TABLE_CHILD = "CHILD";
@@ -54,6 +54,7 @@ public class EntityManager extends SQLiteOpenHelper {
 
     private static final String SQL_CREATE_CHILDREN = "create table " + DATABASE_TABLE_CHILD + " ( " +
             "   " + BaseRawDao.COLUMN_ID + " INTEGER NOT NULL PRIMARY KEY ASC AUTOINCREMENT" +
+            " , " + ChildDao.COLUMN_ACTIVE + " INTEGER NOT NULL DEFAULT 1 " +
             " , " + ChildDao.COLUMN_NAME + " TEXT NOT NULL UNIQUE" +
             " , " + ChildDao.COLUMN_ROOM_FK + " INTEGER NOT NULL REFERENCES " + DATABASE_TABLE_ROOM + " (ID)" +
             " , " + ChildDao.COLUMN_IMAGE_FK + " INTEGER NOT NULL REFERENCES " + ImageDao.TABLE_NAME + " (ID)" +
@@ -114,6 +115,9 @@ public class EntityManager extends SQLiteOpenHelper {
         // should not yet be used
         this.db = db;
         switch(oldVersion) {
+            case 1:
+                db.execSQL("ALTER TABLE " + DATABASE_TABLE_CHILD + " ADD COLUMN " + ChildDao.COLUMN_ACTIVE + " INTEGER NOT NULL DEFAULT 1 ");
+                // fallthrough
         }
         new DBPopulator(this, oldVersion, newVersion);
     }

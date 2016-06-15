@@ -12,9 +12,10 @@ import de.slava.schoolaccounting.R;
 import de.slava.schoolaccounting.filter.FilterWidget;
 import de.slava.schoolaccounting.model.Child;
 
-public class ManageChildrenActivity extends AppCompatActivity implements ManageChildrenFragment.OnListFragmentInteractionListener {
+public class ManageChildrenActivity extends AppCompatActivity implements ManageChildrenFragment.OnListFragmentInteractionListener, ManageChildFragment.ChildUpdateListener {
 
     @Bind(R.id.filterWidget) FilterWidget filterWidget;
+    private ManageChildrenFragment fragmentManageChildren;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,7 +26,7 @@ public class ManageChildrenActivity extends AppCompatActivity implements ManageC
         setSupportActionBar(toolbar);
         // getSupportActionBar().setDisplayShowTitleEnabled(false);
 
-        ManageChildrenFragment fragmentManageChildren = (ManageChildrenFragment) getSupportFragmentManager().findFragmentById(R.id.fragmentListChildren);
+        fragmentManageChildren = (ManageChildrenFragment) getSupportFragmentManager().findFragmentById(R.id.fragmentListChildren);
         fragmentManageChildren.setFilterConnection(filterWidget.getModel());
 
 //        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -41,5 +42,18 @@ public class ManageChildrenActivity extends AppCompatActivity implements ManageC
     @Override
     public void onListFragmentInteraction(Child item) {
         Log.d(Main.getTag(), String.format("Selected %s", item));
+        ManageChildFragment childFragment = (ManageChildFragment) getSupportFragmentManager().findFragmentById(R.id.fragmentChildProperties);
+        if (childFragment != null) {
+            childFragment.setData(item);
+        } else {
+            // TODO
+            Log.w(Main.getTag(), String.format("TODO: open child fragment for %s", item));
+        }
+    }
+
+    @Override
+    public void onChildUpdated(Child item) {
+        Log.d(Main.getTag(), String.format("Child %s has been updated", item));
+        fragmentManageChildren.refresh(item);
     }
 }

@@ -17,4 +17,5 @@
     <string name="childdao.all_children_moved_to_initial">Alle Kinder sind in Raum %s initial platziert</string>
     <string name="childdao.error.noinitialroom">Kein Raum in DB ist als initial markiert</string>
     <string name="title_activity_manage_children">Schülerverwaltung</string>
+    <string name="manage_child.error.not_found_in_db">Schüler ist nicht mehr in DB</string>
 </resources>

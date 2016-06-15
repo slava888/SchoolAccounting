@@ -185,10 +185,10 @@ public class RoomView extends RelativeLayout {
 
         // set special background if no children in the room as effect of filter
         if (children.isEmpty()) {
-            Log.d(Main.getTag(), String.format("View %s now has empty background", roomModel.getName()));
+            // Log.d(Main.getTag(), String.format("View %s now has empty background", roomModel.getName()));
             setBackgroundResource(R.drawable.main_room_border_filtered_out);
         } else {
-            Log.d(Main.getTag(), String.format("View %s now has normal background", roomModel.getName()));
+            // Log.d(Main.getTag(), String.format("View %s now has normal background", roomModel.getName()));
             setBackgroundResource(R.drawable.main_room_border);
         }
         // if we're in the middle of DnD, update the 'normal' background

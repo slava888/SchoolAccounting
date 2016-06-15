@@ -78,29 +78,30 @@ public class DBPopulator {
         Image p4 = idao.getBySid(Image.SID.PERSON_4);
         Image p5 = idao.getBySid(Image.SID.PERSON_5);
         Image p6 = idao.getBySid(Image.SID.PERSON_6);
+        Image p7 = idao.getBySid(Image.SID.PERSON_7);
         ChildDao dao = getEntityManager().getDao(ChildDao.class);
-        dao.add(new Child(null, "Slava", initial, p1, cat4));
-        dao.add(new Child(null, "Marina", initial, p4, cat4));
-        dao.add(new Child(null, "Stefan", initial, p2, cat3));
-        dao.add(new Child(null, "Sebastian", initial, p2, cat3));
-        dao.add(new Child(null, "Maja", initial, p3, cat3));
-        dao.add(new Child(null, "Rocco", initial, p2, cat3));
-        dao.add(new Child(null, "Julian", initial, p2, cat3));
-        dao.add(new Child(null, "Carlos", initial, p2, cat3));
-        dao.add(new Child(null, "Benedikt", initial, p2, cat3));
-        dao.add(new Child(null, "Marko", initial, p2, cat3));
-        dao.add(new Child(null, "Ira", initial, p3, cat3));
-        dao.add(new Child(null, "Valentin", initial, p2, cat3));
-        dao.add(new Child(null, "Iva", initial, p3, cat3));
-        dao.add(new Child(null, "Miku", initial, p3, cat3));
-        dao.add(new Child(null, "Misu", initial, p3, cat3));
-        dao.add(new Child(null, "Milad", initial, p2, cat3));
-        dao.add(new Child(null, "Aikan", initial, p2, cat3));
-        dao.add(new Child(null, "Akan", initial, p2, cat3));
-        dao.add(new Child(null, "Ilaidanur", initial, p3, cat3));
-        dao.add(new Child(null, "Mila", initial, p3, cat3));
-        dao.add(new Child(null, "Maria", initial, p3, cat3));
-        dao.add(new Child(null, "Aikan", initial, p2, cat3));
+        dao.add(new Child(null, true, "Slava", initial, p1, cat4));
+        dao.add(new Child(null, true, "Marina", initial, p4, cat4));
+        dao.add(new Child(null, true, "Stefan", initial, p2, cat3));
+        dao.add(new Child(null, true, "Sebastian", initial, p2, cat3));
+        dao.add(new Child(null, true, "Maja", initial, p3, cat3));
+        dao.add(new Child(null, true, "Rocco", initial, p2, cat3));
+        dao.add(new Child(null, true, "Julian", initial, p2, cat3));
+        dao.add(new Child(null, true, "Carlos", initial, p2, cat3));
+        dao.add(new Child(null, true, "Benedikt", initial, p2, cat3));
+        dao.add(new Child(null, true, "Marko", initial, p2, cat3));
+        dao.add(new Child(null, true, "Ira", initial, p3, cat3));
+        dao.add(new Child(null, true, "Valentin", initial, p2, cat3));
+        dao.add(new Child(null, true, "Iva", initial, p3, cat3));
+        dao.add(new Child(null, true, "Miku", initial, p3, cat3));
+        dao.add(new Child(null, true, "Misu", initial, p3, cat3));
+        dao.add(new Child(null, true, "Milad", initial, p2, cat3));
+        dao.add(new Child(null, true, "Aikan", initial, p2, cat3));
+        dao.add(new Child(null, true, "Akan", initial, p2, cat3));
+        dao.add(new Child(null, true, "Ilaidanur", initial, p3, cat3));
+        dao.add(new Child(null, true, "Mila", initial, p3, cat3));
+        dao.add(new Child(null, true, "Maria", initial, p3, cat3));
+        dao.add(new Child(null, true, "Aikan", initial, p2, cat3));
 
         String players[] = {
                 "Timo Achenbach",
@@ -179,7 +180,7 @@ public class DBPopulator {
         };
         boolean v = true;
         for (String player : players) {
-            dao.add(new Child(null, player, initial, v ? p5 : p6, v ? cat1 : cat2));
+            dao.add(new Child(null, true, player, initial, v ? p5 : p6, v ? cat1 : cat2));
             v = !v;
         }
         // Log.d(Main.getTag(), String.format("All children: %s", dao.getAll(null, null, null)));
