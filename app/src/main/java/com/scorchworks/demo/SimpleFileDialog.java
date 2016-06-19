@@ -191,33 +191,37 @@ public class SimpleFileDialog {
 
     private List<String> getDirectories(String dir) {
         List<String> dirs = new ArrayList<String>();
+        List<String> files = new ArrayList<String>();
         try {
             File dirFile = new File(dir);
 
             // if directory is not the base sd card directory add ".." for going up one directory
-            if (!m_dir.equals(m_sdcardDirectory)) dirs.add("..");
+            // if (!m_dir.equals(m_sdcardDirectory))
+                dirs.add("..");
 
             if (!dirFile.exists() || !dirFile.isDirectory()) {
                 return dirs;
             }
 
             for (File file : dirFile.listFiles()) {
+                if (file.getName().startsWith(".")) {
+                    // skip "hidden" files
+                    continue;
+                }
                 if (file.isDirectory()) {
                     // Add "/" to directory names to identify them in the list
                     dirs.add(file.getName() + "/");
                 } else if (Select_type == FileSave || Select_type == FileOpen) {
                     // Add file names to the list if we are doing a file save or file open operation
-                    dirs.add(file.getName());
+                    files.add(file.getName());
                 }
             }
         } catch (Exception e) {
         }
 
-        Collections.sort(dirs, new Comparator<String>() {
-            public int compare(String o1, String o2) {
-                return o1.compareTo(o2);
-            }
-        });
+        Collections.sort(dirs, (o1, o2) -> o1.compareTo(o2));
+        Collections.sort(files, (o1, o2) -> o1.compareTo(o2));
+        dirs.addAll(files);
         return dirs;
     }
 
