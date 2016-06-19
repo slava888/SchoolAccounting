@@ -24,9 +24,15 @@ import butterknife.ButterKnife;
 import de.slava.schoolaccounting.Main;
 import de.slava.schoolaccounting.R;
 import de.slava.schoolaccounting.filter.FilterModel;
+import de.slava.schoolaccounting.model.Category;
 import de.slava.schoolaccounting.model.Child;
+import de.slava.schoolaccounting.model.Image;
+import de.slava.schoolaccounting.model.Room;
+import de.slava.schoolaccounting.model.db.CategoryDao;
 import de.slava.schoolaccounting.model.db.ChildDao;
 import de.slava.schoolaccounting.model.db.EntityManager;
+import de.slava.schoolaccounting.model.db.ImageDao;
+import de.slava.schoolaccounting.model.db.RoomDao;
 
 /**
  * A fragment representing a list of Items.
@@ -44,8 +50,10 @@ public class ManageChildrenFragment extends Fragment {
     private FilterModel filterModel;
     private PropertyChangeListener filterChangeListener;
 
+    @Bind(R.id.btnNew) Button btnNew;
     @Bind(R.id.btnExport) Button btnExport;
     @Bind(R.id.btnImport) Button btnImport;
+    @Bind(R.id.btnDeleteDeleted) Button btnDeleteDeleted;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -91,8 +99,10 @@ public class ManageChildrenFragment extends Fragment {
         } else {
             recyclerView.setLayoutManager(new GridLayoutManager(getContext(), mColumnCount));
         }
+        btnNew.setOnClickListener(v -> onBtnNew());
         btnExport.setOnClickListener(v -> onBtnExport());
         btnImport.setOnClickListener(v -> onBtnImport());
+        btnDeleteDeleted.setOnClickListener(v -> onDeleteDeleted());
         return view;
     }
 
@@ -159,11 +169,39 @@ public class ManageChildrenFragment extends Fragment {
         }
     }
 
+    private Child makeNew() {
+        Child ret = new Child();
+        Room initialRoom = getDb().getDao(RoomDao.class).findInitial();
+        if (initialRoom == null) {
+            Main.toast(R.string.childdao_error_noinitialroom);
+        } else {
+            ret.setRoom(initialRoom);
+        }
+        ret.setImage(getDb().getDao(ImageDao.class).getBySid(Image.SID.PERSON_1));
+        ret.setActive(true);
+        List<Category> allCats = getDb().getDao(CategoryDao.class).getAll(null, null, null);
+        if (allCats != null && !allCats.isEmpty())
+            ret.setCategory(allCats.get(0));
+        else
+            Main.toast(R.string.categorydao_error_nocategories);
+        return ret;
+    }
+
+    private void onBtnNew() {
+        if (mListener != null) {
+            mListener.onListFragmentInteraction(makeNew());
+        }
+    }
+
     private void onBtnExport() {
         Log.d(Main.getTag(), "TODO: export");
     }
 
     private void onBtnImport() {
         Log.d(Main.getTag(), "TODO: import");
+    }
+
+    private void onDeleteDeleted() {
+        Log.d(Main.getTag(), "TODO: delete deleted");
     }
 }

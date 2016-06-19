@@ -5,6 +5,7 @@ import java.util.Set;
 
 import de.slava.schoolaccounting.model.BaseObservable;
 import de.slava.schoolaccounting.util.StringUtils;
+import de.slava.schoolaccounting.util.TriBoolean;
 
 /**
  * Model for filter
@@ -14,10 +15,13 @@ public class FilterModel extends BaseObservable {
     public static final String PROPERTY_TEXT = "text";
     public static final String PROPERTY_TEXT_ACTIVE = "textActive";
     public static final String PROPERTY_CATEGORIES = "categories";
+    public static final String PROPERTY_SHOW_DELETED = "showDeleted";
 
     private Set<Integer> categories = new HashSet<>();
     private String text;
     private boolean textActive = false;
+    // UNKNOWN - show all, TRUE - show deleted only, FALSE - show active only
+    private TriBoolean showDeleted = TriBoolean.FALSE;
 
     public Set<Integer> getCategories() {
         return categories;
@@ -67,6 +71,16 @@ public class FilterModel extends BaseObservable {
         boolean oldValue = this.textActive;
         this.textActive = textActive;
         super.firePropertyChange(PROPERTY_TEXT_ACTIVE, oldValue, textActive);
+    }
+
+    public TriBoolean getShowDeleted() {
+        return showDeleted;
+    }
+
+    public void setShowDeleted(TriBoolean showDeleted) {
+        TriBoolean oldValue = this.showDeleted;
+        this.showDeleted = showDeleted;
+        super.firePropertyChange(PROPERTY_SHOW_DELETED, oldValue, showDeleted);
     }
 
     @Override

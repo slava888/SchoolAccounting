@@ -21,6 +21,13 @@
             <!--android:background="@drawable/cat_class_1"/>-->
     </LinearLayout>
 
+    <ImageButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/btnShowDeleted"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"/>
+
     <EditText
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

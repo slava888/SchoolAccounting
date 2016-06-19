@@ -89,12 +89,11 @@ public class ChildDao extends BaseJPADao<Child> {
     }
 
     public void moveEveryoneToInitialRoom() {
-        List<Room> initialRooms = getDao(RoomDao.class).getAll("INITIAL = 1", null, null);
-        if (initialRooms == null || initialRooms.isEmpty()) {
+        Room initialRoom = getDao(RoomDao.class).findInitial();
+        if (initialRoom == null) {
             Main.toast(R.string.childdao_error_noinitialroom);
             return;
         }
-        Room initialRoom = initialRooms.get(0);
         List<Child> all = getAll(String.format("%s != ?", COLUMN_ROOM_FK), new String[] {initialRoom.getId().toString()}, null);
         for (Child child : all) {
             child.moveToToom(initialRoom);

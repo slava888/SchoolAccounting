@@ -152,7 +152,7 @@ public class ManageChildFragment extends Fragment {
 
     private void syncUIWithData() {
         txtId.setText(this.originalId != null ? this.originalId.toString() : "+");
-        imgChild.setImageDrawable(child != null ? RoomChildItem.getChildImage(getContext(), child.getImage()) : null);
+        RoomChildItem.setupImageView(getContext(), imgChild, child);
         chkActive.setChecked(child.isActive());
         txtName.setText(child != null ? child.getNameFull() : "");
         for (Category cat : cat2Btn.keySet()) {
@@ -171,7 +171,7 @@ public class ManageChildFragment extends Fragment {
         if (child == null)
             return;
         child.setId(originalId);
-        child = getDb().getDao(ChildDao.class).upsert(child);
+        setData(getDb().getDao(ChildDao.class).upsert(child));
         if (mListener != null)
             mListener.onChildUpdated(child);
     }

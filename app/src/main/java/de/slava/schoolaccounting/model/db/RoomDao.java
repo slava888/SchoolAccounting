@@ -71,4 +71,13 @@ public class RoomDao extends BaseJPADao<Room> {
         target.setInitial(source.isInitial());
         target.setProtocolOnEntry(source.isProtocolOnEntry());
     }
+
+    /**
+     * Searches for an initial room
+     * @return
+     */
+    public Room findInitial() {
+        List<Room> initialRooms = getDao(RoomDao.class).getAll("INITIAL = 1", null, null);
+        return initialRooms == null || initialRooms.isEmpty() ? null : initialRooms.get(0);
+    }
 }

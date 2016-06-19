@@ -1,6 +1,7 @@
 package de.slava.schoolaccounting.filter;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -33,6 +34,7 @@ import de.slava.schoolaccounting.model.db.CategoryDao;
 import de.slava.schoolaccounting.model.db.EntityManager;
 import de.slava.schoolaccounting.util.DelayedSync;
 import de.slava.schoolaccounting.util.StringUtils;
+import de.slava.schoolaccounting.util.TriBoolean;
 import lombok.Getter;
 
 /**
@@ -40,8 +42,10 @@ import lombok.Getter;
  */
 public class FilterWidget extends LinearLayout {
 
+    private boolean manageDeleted;
     @Bind(R.id.txtFilterName) EditText txtFilterName;
     private Map<Category, ImageButton> cat2Btn = new HashMap<>();
+    @Bind(R.id.btnShowDeleted) ImageButton btnShowDeleted;
     @Bind(R.id.btnActivateTextFilter) ImageButton btnActivateTextFilter;
 
     @Getter
@@ -54,12 +58,15 @@ public class FilterWidget extends LinearLayout {
         private String text;
         @Getter
         private boolean textActive;
+        @Getter
+        private TriBoolean showDeleted;
 
         public SavedState(Parcelable source, FilterModel model) {
             super(source);
             this.categories = model.getCategories();
             this.text = model.getText();
             this.textActive = model.isTextActive();
+            this.showDeleted = model.getShowDeleted();
         }
 
         public SavedState(Parcel source) {
@@ -73,6 +80,7 @@ public class FilterWidget extends LinearLayout {
             }
             text = source.readString();
             textActive = source.readInt() != 0;
+            showDeleted = TriBoolean.fromInt(source.readInt());
         }
 
         @Override
@@ -86,6 +94,7 @@ public class FilterWidget extends LinearLayout {
             out.writeIntArray(a);
             out.writeString(text);
             out.writeInt(textActive ? 1 : 0);
+            out.writeInt(showDeleted.toInt());
         }
 
         public static final Parcelable.Creator<SavedState> CREATOR = new Parcelable.Creator<SavedState>() {
@@ -129,6 +138,7 @@ public class FilterWidget extends LinearLayout {
         model.setCategories(ss.getCategories());
         model.setText(ss.getText());
         model.setTextActive(ss.isTextActive());
+        model.setShowDeleted(ss.getShowDeleted());
     }
 
     private EntityManager getDb() {
@@ -139,6 +149,15 @@ public class FilterWidget extends LinearLayout {
         // init this
         View view = inflate(getContext(), R.layout.filter_widget, this);
         ButterKnife.bind(this, view);
+
+        TypedArray a = getContext().obtainStyledAttributes(attrs, R.styleable.FilterWidget);
+        try {
+            manageDeleted = a.getBoolean(R.styleable.FilterWidget_manageDeleted, false);
+            Log.d(Main.getTag(), String.format("Manage deleted = %b", manageDeleted));
+            btnShowDeleted.setVisibility(manageDeleted ? View.VISIBLE : View.GONE);
+        } finally {
+            a.recycle();
+        }
 
         // add buttons
         if (!isInEditMode()) {
@@ -162,6 +181,12 @@ public class FilterWidget extends LinearLayout {
                         getModel().addCategory(catId);
                 });
             }
+        }
+
+        if (manageDeleted) {
+            btnShowDeleted.setOnClickListener(v -> {
+                model.setShowDeleted(model.getShowDeleted().cycle());
+            });
         }
 
         final DelayedSync<String> textSync = new DelayedSync<>(t -> {
@@ -214,6 +239,9 @@ public class FilterWidget extends LinearLayout {
                 it.getValue().setAlpha(active ? 1.f : 0.3f);
             }
         }
+        if (event == null || FilterModel.PROPERTY_SHOW_DELETED.equals(event.getPropertyName())) {
+            btnShowDeleted.setBackground(ContextCompat.getDrawable(getContext(), resIdForShowDeleted(model.getShowDeleted())));
+        }
         if (event == null || FilterModel.PROPERTY_TEXT.equals(event.getPropertyName())) {
             if (!Objects.equals(txtFilterName.getText().toString(), model.getText())) {
                 txtFilterName.setText(model.getText());
@@ -222,6 +250,15 @@ public class FilterWidget extends LinearLayout {
         if (event == null || FilterModel.PROPERTY_TEXT_ACTIVE.equals(event.getPropertyName())) {
             btnActivateTextFilter.setAlpha(getModel().isTextActive() ? 1.f : 0.3f);
             txtFilterName.setAlpha(getModel().isTextActive() ? 1.f : 0.3f);
+        }
+    }
+
+    private int resIdForShowDeleted(TriBoolean value) {
+        // UNKNOWN - show all, TRUE - show deleted only, FALSE - show active only
+        switch (value) {
+            case FALSE: return R.drawable.eye_05;
+            case TRUE: return R.drawable.eye_0;
+            default: return R.drawable.eye_1;
         }
     }
 }

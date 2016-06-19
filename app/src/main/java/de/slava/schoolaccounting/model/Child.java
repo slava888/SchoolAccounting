@@ -1,6 +1,7 @@
 package de.slava.schoolaccounting.model;
 
 import de.slava.schoolaccounting.filter.FilterModel;
+import de.slava.schoolaccounting.util.TriBoolean;
 import lombok.experimental.Accessors;
 
 /**
@@ -120,10 +121,19 @@ public class Child extends BasicEntity {
     public boolean isMatch(FilterModel filter) {
         if (filter == null)
             return true;
+        if (!isMatchFilterDeleted(filter.getShowDeleted()))
+            return false;
         if (getCategory() != null && !filter.isCategoryActivated(getCategory().getId()))
             return false;
         if (getNameFull() != null && filter.isTextActive() && !getNameFull().toLowerCase().contains(filter.getText().toLowerCase()))
             return false;
         return true;
+    }
+
+    private boolean isMatchFilterDeleted(TriBoolean showDeleted) {
+        // UNKNOWN - show all, TRUE - show deleted only, FALSE - show active only
+        if (showDeleted == null || showDeleted == TriBoolean.UNKNOWN)
+            return true;
+        return showDeleted.toBoolean() != isActive();
     }
 }

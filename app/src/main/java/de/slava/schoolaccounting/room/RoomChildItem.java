@@ -1,10 +1,10 @@
 package de.slava.schoolaccounting.room;
 
 import android.content.ClipData;
-import android.content.ClipDescription;
 import android.content.Context;
 import android.graphics.Color;
-import android.graphics.Point;
+import android.graphics.ColorMatrix;
+import android.graphics.ColorMatrixColorFilter;
 import android.graphics.drawable.Drawable;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
@@ -26,9 +26,9 @@ import android.widget.TextView;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
-import de.slava.schoolaccounting.dnd.DNDContextMenu;
 import de.slava.schoolaccounting.Main;
 import de.slava.schoolaccounting.R;
+import de.slava.schoolaccounting.dnd.DNDContextMenu;
 import de.slava.schoolaccounting.dnd.DNDObject;
 import de.slava.schoolaccounting.model.Child;
 import de.slava.schoolaccounting.model.Image;
@@ -87,14 +87,25 @@ public class RoomChildItem extends LinearLayout {
         if (textName == null || child == null)
             return;
         textName.setText(child.getNameFull());
-        imageView.setImageDrawable(getChildImage(getContext(), child.getImage()));
+        setupImageView(getContext(), imageView, child);
     }
 
-    public static Drawable getChildImage(Context context, Image image) {
-        if (image == null)
-            return null;
+    public static void setupImageView(Context context, ImageView imgView, Child child) {
+        Image image = child.getImage();
+        if (image == null) {
+            imgView.setImageDrawable(null);
+            return;
+        }
         int resId = image.getSid().getResourceId();
-        return ContextCompat.getDrawable(context, resId);
+        Drawable drawable = ContextCompat.getDrawable(context, resId);
+        imgView.setImageDrawable(drawable);
+        if (child.isActive()) {
+            imgView.setColorFilter(null);
+        } else {
+            ColorMatrix matrix = new ColorMatrix();
+            matrix.setSaturation(0);
+            imgView.setColorFilter(new ColorMatrixColorFilter(matrix));
+        }
     }
 
     @Override
