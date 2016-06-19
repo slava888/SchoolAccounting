@@ -41,6 +41,7 @@ public class ManageChildFragment extends Fragment {
     private Child child;
     private ChildUpdateListener mListener;
 
+    @Bind(R.id.paneMain) ViewGroup paneMain;
     @Bind(R.id.txtId) TextView txtId;
     @Bind(R.id.imgChild) ImageView imgChild;
     @Bind(R.id.chkActive) CheckBox chkActive;
@@ -145,18 +146,28 @@ public class ManageChildFragment extends Fragment {
 
     public void setData(Child child) {
         Log.d(Main.getTag(), String.format("Show child %s", child));
-        this.originalId = child.getId();
-        this.child = new Child(child);
+        if (child != null) {
+            this.originalId = child.getId();
+            this.child = new Child(child);
+        } else {
+            this.originalId = null;
+            this.child = null;
+        }
         syncUIWithData();
     }
 
     private void syncUIWithData() {
-        txtId.setText(this.originalId != null ? this.originalId.toString() : "+");
-        RoomChildItem.setupImageView(getContext(), imgChild, child);
-        chkActive.setChecked(child.isActive());
-        txtName.setText(child != null ? child.getNameFull() : "");
-        for (Category cat : cat2Btn.keySet()) {
-            syncCategoryUI(cat, child != null && child.getCategory() == cat);
+        if (child != null) {
+            paneMain.setVisibility(View.VISIBLE);
+            txtId.setText(this.originalId != null ? this.originalId.toString() : "+");
+            RoomChildItem.setupImageView(getContext(), imgChild, child);
+            chkActive.setChecked(child.isActive());
+            txtName.setText(child != null ? child.getNameFull() : "");
+            for (Category cat : cat2Btn.keySet()) {
+                syncCategoryUI(cat, child != null && child.getCategory() == cat);
+            }
+        } else {
+            paneMain.setVisibility(View.INVISIBLE);
         }
     }
 
@@ -170,8 +181,15 @@ public class ManageChildFragment extends Fragment {
     private void onBtnSave() {
         if (child == null)
             return;
+        // commit the EditText to model if saving while still editing the text
+        this.child.setNameFull(txtName.getText().toString());
         child.setId(originalId);
-        setData(getDb().getDao(ChildDao.class).upsert(child));
+        Child persistent = getDb().getDao(ChildDao.class).upsert(child);
+        if (originalId == null) {
+            // we have a new child, let the room know, the child is there
+            persistent.moveToToom(persistent.getRoom());
+        }
+        setData(persistent);
         if (mListener != null)
             mListener.onChildUpdated(child);
     }
@@ -196,6 +214,4 @@ public class ManageChildFragment extends Fragment {
     public static interface ChildUpdateListener {
         void onChildUpdated(Child item);
     }
-
-
 }

@@ -2,6 +2,8 @@
               xmlns:tools="http://schemas.android.com/tools"
               style="@style/FullSizeLayout"
               android:orientation="vertical"
+              android:id="@+id/paneMain"
+              android:visibility="invisible"
               android:background="@drawable/manage_child_background"
               tools:context=".manage.children.ManageChildFragment">
 

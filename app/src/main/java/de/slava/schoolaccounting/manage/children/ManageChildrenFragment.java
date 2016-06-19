@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -202,6 +203,21 @@ public class ManageChildrenFragment extends Fragment {
     }
 
     private void onDeleteDeleted() {
-        Log.d(Main.getTag(), "TODO: delete deleted");
+        new AlertDialog.Builder(getContext())
+                .setIcon(R.drawable.crying_baby)
+                .setTitle("Kinder entfernen")
+                .setMessage("Diese Aktion wird alle nicht mehr aktive Kinder aus der Datenbank endgültig entfernen. Drücken Sie Ok zum Fortfahren.")
+                .setPositiveButton(R.string.ok, (dialog, which) -> this.implDeleteDeleted())
+                .setNegativeButton(R.string.cancel, (dialog, which) -> {})
+                .show();
+    }
+
+    private void implDeleteDeleted() {
+        getDb().getDao(ChildDao.class).removeAllInactive();
+        syncModelWithUI();
+        if (mListener != null) {
+            // just to be sure, that it does not display a just deleted entry
+            mListener.onListFragmentInteraction(null);
+        }
     }
 }

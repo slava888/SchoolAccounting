@@ -2,13 +2,14 @@ package de.slava.schoolaccounting.model.db;
 
 import android.content.ContentValues;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import de.slava.schoolaccounting.Main;
 import de.slava.schoolaccounting.model.BasicEntity;
 
 /**
@@ -145,6 +146,14 @@ public abstract class BaseJPADao<Entity extends BasicEntity> extends BaseRawDao 
                 mergeInto(fromCache, persisted);
         }
         return fetchRelations(fromCache);
+    }
+
+    protected void delete(Entity persisted) {
+        Log.d(Main.getTag(), String.format("Delete %s", persisted));
+        if (persisted.isPersistent()) {
+            getDatabase().delete(getTableName(), String.format("%s = ?", COLUMN_ID), new String[]{persisted.getId().toString()});
+            cache.remove(persisted.getId());
+        }
     }
 }
 

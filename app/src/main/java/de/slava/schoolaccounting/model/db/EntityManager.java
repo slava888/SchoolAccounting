@@ -63,8 +63,8 @@ public class EntityManager extends SQLiteOpenHelper {
 
     private static final String SQL_CREATE_JOURNAL = "create table " + DATABASE_TABLE_JOURNAL + " ( " +
             "   " + BaseRawDao.COLUMN_ID + " INTEGER NOT NULL PRIMARY KEY ASC AUTOINCREMENT" +
-            " , " + JournalDao.COLUMN_CHILD_FK + " INTEGER NOT NULL REFERENCES " + DATABASE_TABLE_CHILD + " (ID)" +
-            " , " + JournalDao.COLUMN_ROOM_FK + " INTEGER NOT NULL REFERENCES " + DATABASE_TABLE_ROOM + " (ID)" +
+            " , " + JournalDao.COLUMN_CHILD_FK + " INTEGER NOT NULL REFERENCES " + DATABASE_TABLE_CHILD + " (ID) ON DELETE CASCADE" +
+            " , " + JournalDao.COLUMN_ROOM_FK + " INTEGER NOT NULL REFERENCES " + DATABASE_TABLE_ROOM + " (ID) ON DELETE CASCADE" +
             " , " + JournalDao.COLUMN_TIME + " DATETIME NOT NULL" +
             " )";
 
@@ -83,7 +83,7 @@ public class EntityManager extends SQLiteOpenHelper {
     private static EntityManager instance;
     public static synchronized EntityManager instance(Context context) {
         if (instance == null) {
-            //context.deleteDatabase(EntityManager.DATABASE_NAME);
+            // context.deleteDatabase(EntityManager.DATABASE_NAME);
             instance = new EntityManager(context);
         }
         return instance;
@@ -96,6 +96,12 @@ public class EntityManager extends SQLiteOpenHelper {
 
     public Context getContext() {
         return context;
+    }
+
+    @Override
+    public void onOpen(SQLiteDatabase db) {
+        super.onOpen(db);
+        db.execSQL("PRAGMA foreign_keys = ON");
     }
 
     @Override
@@ -116,7 +122,11 @@ public class EntityManager extends SQLiteOpenHelper {
         this.db = db;
         switch(oldVersion) {
             case 1:
+                // add 'active' flag to children table
                 db.execSQL("ALTER TABLE " + DATABASE_TABLE_CHILD + " ADD COLUMN " + ChildDao.COLUMN_ACTIVE + " INTEGER NOT NULL DEFAULT 1 ");
+                // recreate journal with activated FK constraints
+                db.execSQL("DROP TABLE " + DATABASE_TABLE_JOURNAL);
+                db.execSQL(SQL_CREATE_JOURNAL);
                 // fallthrough
         }
         new DBPopulator(this, oldVersion, newVersion);

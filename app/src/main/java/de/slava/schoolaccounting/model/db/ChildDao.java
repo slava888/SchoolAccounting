@@ -100,4 +100,14 @@ public class ChildDao extends BaseJPADao<Child> {
         }
         Main.toast(R.string.childdao_all_children_moved_to_initial, initialRoom.getName());
     }
+
+    /**
+     * Removes all inactive children from the DB. Cannot be undone, the data is deleted forever.
+     */
+    public void removeAllInactive() {
+        List<Child> toBeDeleted = getAll(String.format("%s = ?", COLUMN_ACTIVE), new String[] {"0"}, null);
+        for (Child child : toBeDeleted) {
+            delete(child);
+        }
+    }
 }
