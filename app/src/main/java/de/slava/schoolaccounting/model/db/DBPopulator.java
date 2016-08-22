@@ -32,6 +32,9 @@ public class DBPopulator {
                 populateCategories();
                 populateChildren();
                 // fallthrough
+            case 2:
+                updateImages();
+                // fallthrough
         }
     }
 
@@ -199,6 +202,16 @@ public class DBPopulator {
             return def;
         }
         return defauls.iterator().next();
+    }
+
+    private void updateImages() {
+        ImageDao dao = getDao(ImageDao.class);
+        for (Image.SID sid : Image.SID.values()) {
+            Image img = dao.getBySid(sid);
+            img.setUsageCategory(sid.isUsageCategory());
+            img.setUsagePerson(sid.isUsagePerson());
+            dao.update(img);
+        }
     }
 
     public <T> T getDao(Class<T> daoClass) {

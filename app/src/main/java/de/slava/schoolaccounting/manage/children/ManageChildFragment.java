@@ -109,6 +109,7 @@ public class ManageChildFragment extends Fragment {
             }
             return false;
         });
+        imgChild.setOnClickListener(click -> openImgChooseDialog());
         chkActive.setOnCheckedChangeListener((v, checked) -> {
             if (this.child != null)
                 this.child.setActive(checked);
@@ -126,6 +127,17 @@ public class ManageChildFragment extends Fragment {
         btnSave.setOnClickListener(v -> onBtnSave());
         btnCancel.setOnClickListener(v -> onBtnRevert());
         return view;
+    }
+
+    private void openImgChooseDialog() {
+        ManageChildImageDialogFragment imageDialog = new ManageChildImageDialogFragment();
+        imageDialog.setClickListener(image -> {
+            Log.d(Main.getTag(), String.format("Selected %s", image.getSid()));
+            this.child.setImage(image);
+            syncUIWithData();
+            return true;
+        });
+        imageDialog.show(getFragmentManager(), "manageImage");
     }
 
     @Override

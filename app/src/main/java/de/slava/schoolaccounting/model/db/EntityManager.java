@@ -28,15 +28,18 @@ public class EntityManager extends SQLiteOpenHelper {
     private final Context context;
     private Map<Class<?>, Object> daoCache = new HashMap<>();
 
-    public static final int DATABASE_VERSION = 2;
+    public static final int DATABASE_VERSION = 3;
     public static final String DATABASE_NAME = "SchoolAccounting";
     public static final String DATABASE_TABLE_ROOM = "ROOM";
     public static final String DATABASE_TABLE_CHILD = "CHILD";
     public static final String DATABASE_TABLE_JOURNAL = "JOURNAL";
+    public static final String DATABASE_TABLE_IMAGE = ImageDao.TABLE_NAME;
 
     private static final String SQL_CREATE_IMAGES = "create table " + ImageDao.TABLE_NAME + " (" +
             "   " + BaseRawDao.COLUMN_ID + " INTEGER NOT NULL PRIMARY KEY ASC AUTOINCREMENT" +
             " , " + ImageDao.COLUMN_SID + " TEXT" +
+            " , " + ImageDao.COLUMN_USAGE_CATEGORY + " INTEGER NOT NULL DEFAULT 1 " +
+            " , " + ImageDao.COLUMN_USAGE_PERSON + " INTEGER NOT NULL DEFAULT 1 " +
             " )";
 
     private static final String SQL_CREATE_CATEGORIES = "create table " + CategoryDao.TABLE_NAME + " (" +
@@ -127,6 +130,10 @@ public class EntityManager extends SQLiteOpenHelper {
                 // recreate journal with activated FK constraints
                 db.execSQL("DROP TABLE " + DATABASE_TABLE_JOURNAL);
                 db.execSQL(SQL_CREATE_JOURNAL);
+                // fallthrough
+            case 2:
+                db.execSQL("ALTER TABLE " + DATABASE_TABLE_IMAGE + " ADD COLUMN " + ImageDao.COLUMN_USAGE_CATEGORY + " INTEGER NOT NULL DEFAULT 1 ");
+                db.execSQL("ALTER TABLE " + DATABASE_TABLE_IMAGE + " ADD COLUMN " + ImageDao.COLUMN_USAGE_PERSON + " INTEGER NOT NULL DEFAULT 1 ");
                 // fallthrough
         }
         new DBPopulator(this, oldVersion, newVersion);

@@ -26,7 +26,8 @@ public class UserEnvironment extends BaseObservable {
     }
 
     public AccessRight getAccessRight() {
-        return accessRight;
+        return AccessRight.DEV;
+        //return accessRight;
     }
 
     public void setAccessRight(AccessRight accessRight) {

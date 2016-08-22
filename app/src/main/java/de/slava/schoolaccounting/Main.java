@@ -12,6 +12,8 @@ import android.widget.Toast;
 
 import com.sanathp.AndroidDatabaseManager;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
@@ -105,8 +107,6 @@ public class Main extends AppCompatActivity implements IRoomSelectionListener {
         onStartRestoreLastStatus();
         onStartCheckMoveChildrenInInitialRoom();
 
-        initUserAccessListeners();
-
 //        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
 //        fab.setOnClickListener(new View.OnClickListener() {
 //            @Override
@@ -123,6 +123,7 @@ public class Main extends AppCompatActivity implements IRoomSelectionListener {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         mainMenu = menu;
+        initUserAccessListeners();
         return true;
     }
 
@@ -185,7 +186,7 @@ public class Main extends AppCompatActivity implements IRoomSelectionListener {
     }
 
     private void initUserAccessListeners() {
-        UserEnvironment.instance().addChangeListener((change) -> {
+        PropertyChangeListener l = (change) -> {
             if (UserEnvironment.PROPERTY_ACCESS_RIGHT.equals(change.getPropertyName())) {
                 Log.d(Main.getTag(), String.format("User access changes from %s to %s", change.getOldValue(), change.getNewValue()));
                 MenuItem menuDebugDB = mainMenu.findItem(R.id.menuDebugDB);
@@ -195,7 +196,9 @@ public class Main extends AppCompatActivity implements IRoomSelectionListener {
                 if (menuManageChildren != null)
                     menuManageChildren.setVisible(UserEnvironment.instance().getAccessRight().higherOrEqualsThan(AccessRight.ADMIN));
             }
-        });
+        };
+        UserEnvironment.instance().addChangeListener(l);
+        l.propertyChange(new PropertyChangeEvent(this, UserEnvironment.PROPERTY_ACCESS_RIGHT, null, UserEnvironment.instance().getAccessRight()));
     }
 
     private EntityManager getDb() {
