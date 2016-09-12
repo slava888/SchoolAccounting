@@ -22,4 +22,12 @@
     <string name="ok">Ok</string>
     <string name="cancel">Abbrechen</string>
     <string name="manage_child_image.title">Bildauswahl</string>
+    <string name="manage_child.export.error">Fehler beim Schreiben in %s</string>
+    <string name="manage_child.export.success">Die Kinderliste mit %1$d Kindern wurde erfolgreich exportiert:\n%2$s</string>
+    <string name="manage_child.export.column.id">ID</string>
+    <string name="manage_child.export.column.name">Name</string>
+    <string name="manage_child.export.column.active">Aktive</string>
+    <string name="manage_child.export.column.category">Klasse</string>
+    <string name="manage_child.export.column.image">Bild-ID</string>
+    <string name="manage_child.import.error">Fehler beim Lesen von %s</string>
 </resources>

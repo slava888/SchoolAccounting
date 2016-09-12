@@ -15,8 +15,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
+
+import com.scorchworks.demo.SimpleFileDialog;
 
 import java.beans.PropertyChangeListener;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,6 +42,10 @@ import de.slava.schoolaccounting.model.db.ChildDao;
 import de.slava.schoolaccounting.model.db.EntityManager;
 import de.slava.schoolaccounting.model.db.ImageDao;
 import de.slava.schoolaccounting.model.db.RoomDao;
+
+import static de.slava.schoolaccounting.util.CsvUtils.CSV_EOL;
+import static de.slava.schoolaccounting.util.CsvUtils.CSV_SEPARATOR;
+import static de.slava.schoolaccounting.util.CsvUtils.wrapCsv;
 
 /**
  * A fragment representing a list of Items.
@@ -195,11 +207,72 @@ public class ManageChildrenFragment extends Fragment {
     }
 
     private void onBtnExport() {
-        Log.d(Main.getTag(), "TODO: export");
+        SimpleFileDialog FileOpenDialog = new SimpleFileDialog(this.getContext(), "FileSave", this::exportToFile);
+        //You can change the default filename using the public variable "Default_File_Name"
+        FileOpenDialog.Default_File_Name = "";
+        FileOpenDialog.chooseFile_or_Dir();
+    }
+
+    private void exportToFile(String file) {
+        Log.d(Main.getTag(), String.format("Export children to file %s", file));
+        List<Child> entries = getDb().getDao(ChildDao.class).getAll(null, null, ChildDao.COLUMN_ID + " ASC");
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+            writer.write(getString(R.string.manage_child_export_column_id));
+            writer.write(CSV_SEPARATOR);
+            writer.write(getString(R.string.manage_child_export_column_name));
+            writer.write(CSV_SEPARATOR);
+            writer.write(getString(R.string.manage_child_export_column_active));
+            writer.write(CSV_SEPARATOR);
+            writer.write(getString(R.string.manage_child_export_column_category));
+            writer.write(CSV_SEPARATOR);
+            writer.write(getString(R.string.manage_child_export_column_image));
+            writer.write(CSV_EOL);
+            for (Child entry : entries) {
+                writer.write(String.format("%d", entry.getId()));
+                writer.write(CSV_SEPARATOR);
+                writer.write(wrapCsv(entry.getNameFull()));
+                writer.write(CSV_SEPARATOR);
+                writer.write(String.format("%d", entry.isActive() ? 1 : 0));
+                writer.write(CSV_SEPARATOR);
+                writer.write(entry.getCategory().getName());
+                writer.write(CSV_SEPARATOR);
+                writer.write(entry.getImage().getSid().name());
+                writer.write(CSV_EOL);
+            }
+            writer.close();
+        } catch (IOException e) {
+            Log.w(Main.getTag(), String.format("%s writing into file %s: %s", e.getClass().getSimpleName(), file, e.getMessage()));
+            new AlertDialog.Builder(this.getContext())
+                    .setTitle(getString(R.string.manage_child_export_error, file))
+                    .setMessage(e.getLocalizedMessage())
+                    .show();
+        }
+        Toast.makeText(this.getContext(), getString(R.string.manage_child_export_success, entries.size(), file), Toast.LENGTH_LONG).show();
     }
 
     private void onBtnImport() {
-        Log.d(Main.getTag(), "TODO: import");
+        SimpleFileDialog FileOpenDialog = new SimpleFileDialog(this.getContext(), "FileLoad", this::importFromFile);
+        FileOpenDialog.Default_File_Name = "";
+        FileOpenDialog.chooseFile_or_Dir();
+    }
+
+    private void importFromFile(String file) {
+        StringBuilder errors = new StringBuilder();
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            String line;
+            int lineNr = 1;
+            while ((line = reader.readLine()) != null) {
+                Log.d(Main.getTag(), String.format("Line %d: \"%s\"", lineNr, line));
+
+                lineNr++;
+            }
+        } catch (IOException e) {
+            Log.w(Main.getTag(), String.format("%s loadnig the file %s: %s", e.getClass().getSimpleName(), file, e.getMessage()));
+            new AlertDialog.Builder(this.getContext())
+                    .setTitle(getString(R.string.manage_child_import_error, file))
+                    .setMessage(e.getLocalizedMessage())
+                    .show();
+        }
     }
 
     private void onDeleteDeleted() {

@@ -1,7 +1,6 @@
 package de.slava.schoolaccounting.journal;
 
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -27,6 +26,10 @@ import de.slava.schoolaccounting.model.DateRangeFilter;
 import de.slava.schoolaccounting.model.JournalEntry;
 import de.slava.schoolaccounting.model.db.EntityManager;
 import de.slava.schoolaccounting.model.db.JournalDao;
+
+import static de.slava.schoolaccounting.util.CsvUtils.CSV_EOL;
+import static de.slava.schoolaccounting.util.CsvUtils.CSV_SEPARATOR;
+import static de.slava.schoolaccounting.util.CsvUtils.wrapCsv;
 
 public class JournalActivity extends AppCompatActivity {
 
@@ -73,7 +76,7 @@ public class JournalActivity extends AppCompatActivity {
 
     private void onExportDateRange(DateRangeFilter filter) {
         // open file picker dialog
-        SimpleFileDialog FileOpenDialog =  new SimpleFileDialog(this, "FileOpen", dir -> exportToFile(dir));
+        SimpleFileDialog FileOpenDialog =  new SimpleFileDialog(this, "FileSave", dir -> exportToFile(dir));
         //You can change the default filename using the public variable "Default_File_Name"
         FileOpenDialog.Default_File_Name = "";
         FileOpenDialog.chooseFile_or_Dir();
@@ -86,19 +89,17 @@ public class JournalActivity extends AppCompatActivity {
         }
     }
 
-    private final static String CSV_SEPARATOR = ";";
-    private final static String CSV_EOL = "\n";
-
     private void exportToFile(String file) {
         Log.d(Main.getTag(), String.format("Export to file %s", file));
         List<JournalEntry> entries = getDb().getDao(JournalDao.class).getAllFiltered(dateRangeFilter);
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
             for (JournalEntry entry : entries) {
-                writer.write(entry.getChild().getNameFull());
+                writer.write(wrapCsv(entry.getChild().getNameFull()));
                 writer.write(CSV_SEPARATOR);
-                writer.write(entry.getTimestampString());
+                writer.write(wrapCsv(entry.getTimestampString()));
                 writer.write(CSV_EOL);
             }
+            writer.close();
         } catch (IOException e) {
             Log.w(Main.getTag(), String.format("%s writing into file %s: %s", e.getClass().getSimpleName(), file, e.getMessage()));
             new AlertDialog.Builder(this)

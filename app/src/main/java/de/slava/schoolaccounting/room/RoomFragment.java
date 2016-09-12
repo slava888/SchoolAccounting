@@ -12,7 +12,7 @@ import android.widget.TextView;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
-import java.util.Set;
+import java.util.Collections;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -20,6 +20,7 @@ import de.slava.schoolaccounting.R;
 import de.slava.schoolaccounting.filter.FilterModel;
 import de.slava.schoolaccounting.model.Child;
 import de.slava.schoolaccounting.model.Room;
+import de.slava.schoolaccounting.util.NullSafeCompare;
 
 /**
  * @author by V.Sysoltsev
@@ -75,7 +76,8 @@ public class RoomFragment extends Fragment {
             listScholars.setAdapter(listAdapter);
         }
         textHeader.setText(roomModel.getName());
-        Set<Child> children = roomModel.getChildrenFiltered(filterModel);
+        ArrayList<Child> children = new ArrayList<>(roomModel.getChildrenFiltered(filterModel));
+        Collections.sort(children, new NullSafeCompare<>(Child::getNameFull));
         textNumber.setText(String.format("%d", children.size()));
         listAdapter.clear();
         listAdapter.addAll(children);
