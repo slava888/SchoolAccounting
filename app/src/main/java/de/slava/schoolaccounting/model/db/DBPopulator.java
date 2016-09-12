@@ -33,6 +33,8 @@ public class DBPopulator {
                 populateChildren();
                 // fallthrough
             case 2:
+                // fallthrough
+            case 3:
                 updateImages();
                 // fallthrough
         }
@@ -208,9 +210,14 @@ public class DBPopulator {
         ImageDao dao = getDao(ImageDao.class);
         for (Image.SID sid : Image.SID.values()) {
             Image img = dao.getBySid(sid);
-            img.setUsageCategory(sid.isUsageCategory());
-            img.setUsagePerson(sid.isUsagePerson());
-            dao.update(img);
+            if (img == null) {
+                img = new Image(sid);
+                dao.add(img);
+            } else {
+                img.setUsageCategory(sid.isUsageCategory());
+                img.setUsagePerson(sid.isUsagePerson());
+                dao.update(img);
+            }
         }
     }
 

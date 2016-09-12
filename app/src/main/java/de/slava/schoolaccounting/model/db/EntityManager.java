@@ -28,7 +28,7 @@ public class EntityManager extends SQLiteOpenHelper {
     private final Context context;
     private Map<Class<?>, Object> daoCache = new HashMap<>();
 
-    public static final int DATABASE_VERSION = 3;
+    public static final int DATABASE_VERSION = 4;
     public static final String DATABASE_NAME = "SchoolAccounting";
     public static final String DATABASE_TABLE_ROOM = "ROOM";
     public static final String DATABASE_TABLE_CHILD = "CHILD";
@@ -134,6 +134,8 @@ public class EntityManager extends SQLiteOpenHelper {
             case 2:
                 db.execSQL("ALTER TABLE " + DATABASE_TABLE_IMAGE + " ADD COLUMN " + ImageDao.COLUMN_USAGE_CATEGORY + " INTEGER NOT NULL DEFAULT 1 ");
                 db.execSQL("ALTER TABLE " + DATABASE_TABLE_IMAGE + " ADD COLUMN " + ImageDao.COLUMN_USAGE_PERSON + " INTEGER NOT NULL DEFAULT 1 ");
+                // fallthrough
+            case 3:
                 // fallthrough
         }
         new DBPopulator(this, oldVersion, newVersion);
